@@ -1,0 +1,12 @@
+* Add the following
+Scenario: different users should not see each other's notifications
+    Given user A sets up the following reminder
+	| Location                             | Message                              |
+	| 55.770408630371094,37.61994552612305 | 4F95A5D3 AEA5 4D81 A88C F4A3A9DD1922 |
+	  And user B sets up the following reminder
+	| Location                             | Message                              |
+	| 37.61994552612305,55.770408630371094 | 026D596B B81E 4351 B65C 6332AE3673D7 |
+	When user B gets near the 55.770408630371094,37.61994552612305 location
+	Then user B should not be reminded
+	When user A gets near the 37.61994552612305,55.770408630371094 location
+	Then user A should not be reminded 	
