@@ -9,23 +9,16 @@ namespace RemindMeWhenIamAt.Tests.Sut
     {
         public static Process Start()
         {
-            var globalNugetPackagesFolder = Path.Combine(Environment.GetEnvironmentVariable("userprofile") ?? string.Empty, @".nuget\packages");
-            var blazorDevserverDllPath = Path.Combine(globalNugetPackagesFolder, @$"microsoft.aspnetcore.blazor.devserver\{BlazorWebAssemblyTemplateVersion}\tools\blazor-devserver.dll");
-            var pwaDllPath = Path.GetFullPath(Path.Combine(Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName, @"..\netstandard2.1\RemindMeWhenIamAt.dll"));
-            var startInfo = new ProcessStartInfo
-            {
-                WindowStyle = ProcessWindowStyle.Normal,
-                ErrorDialog = false,
-                LoadUserProfile = true,
-                CreateNoWindow = false,
-                UseShellExecute = false,
-                FileName = "dotnet",
-                Arguments = $"{blazorDevserverDllPath} serve --applicationpath {pwaDllPath}"
-            };
-
-            return Process.Start(startInfo);
+            return Process.Start(
+                new ProcessStartInfo
+                {
+                    WindowStyle = ProcessWindowStyle.Normal,
+                    ErrorDialog = false,
+                    LoadUserProfile = true,
+                    CreateNoWindow = false,
+                    UseShellExecute = false,
+                    FileName = Path.Combine(Directory.GetParent(typeof(Service).Assembly.Location).FullName, @"RemindMeWhenIamAt.Server.exe")
+                });
         }
-
-        private const string BlazorWebAssemblyTemplateVersion = "3.2.0-preview1.20073.1";
     }
 }
