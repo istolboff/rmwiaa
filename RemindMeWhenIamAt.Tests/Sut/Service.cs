@@ -7,6 +7,8 @@ namespace RemindMeWhenIamAt.Tests.Sut
 {
     internal static class Service
     {
+        public static string FolderPath => Directory.GetParent(typeof(Service).Assembly.Location).FullName;
+
         public static Process Start()
         {
             return Process.Start(
@@ -17,7 +19,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
                     LoadUserProfile = true,
                     CreateNoWindow = false,
                     UseShellExecute = false,
-                    FileName = Path.Combine(Directory.GetParent(typeof(Service).Assembly.Location).FullName, @"RemindMeWhenIamAt.Server.exe")
+                    FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe")
                 });
         }
     }
