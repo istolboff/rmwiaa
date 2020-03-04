@@ -1,5 +1,6 @@
 ﻿Feature: Top Level scenarios
 
+@Ignore
 Scenario: Notify when near the location
 	Given user A sets up the following reminder
 	| Location                             | Message                              |

@@ -16,7 +16,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
                 {
                     WindowStyle = ProcessWindowStyle.Normal,
                     ErrorDialog = false,
-                    LoadUserProfile = true,
+                    LoadUserProfile = false,
                     CreateNoWindow = false,
                     UseShellExecute = false,
                     FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe")
