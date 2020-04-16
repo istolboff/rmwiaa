@@ -11,6 +11,8 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+# https://github.com/SpecFlowOSS/SpecFlow/issues/1912
+  MSBUILDSINGLELOADCONTEXT: 1  
 
 steps:
 - script: dotnet build --configuration $(buildConfiguration)
