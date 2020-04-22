@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +14,10 @@ namespace RemindMeWhenIamAt.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
-            builder.Services.AddBaseAddressHttpClient();
+
+#pragma warning disable CA2000 // Container takes care of disposing HttpClient
+            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+#pragma warning restore CA2000 // DisposeObjectsBeforeLosingScope
 
             await builder.Build().RunAsync().ConfigureAwait(true);
         }
