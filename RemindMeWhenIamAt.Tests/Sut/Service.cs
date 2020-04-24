@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
@@ -15,7 +13,8 @@ namespace RemindMeWhenIamAt.Tests.Sut
                 new ProcessStartInfo
                 {
                     WindowStyle = ProcessWindowStyle.Normal,
-                    FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe")
+                    FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
+                    WorkingDirectory = Path.Combine(FolderPath, @"..\..\publish")
                 });
         }
     }

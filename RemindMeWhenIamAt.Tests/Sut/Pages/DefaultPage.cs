@@ -1,6 +1,6 @@
 ﻿namespace RemindMeWhenIamAt.Tests.Sut.Pages
 {
-    internal sealed class IndexPage
+    internal sealed class DefaultPage
     {
         public NewReminderPage RequestAddingNewReminder()
         {

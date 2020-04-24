@@ -18,6 +18,9 @@ steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
+- script: dotnet publish --output .\bin\publish --configuration $(buildConfiguration)
+  displayName: 'publish locally in order to be able to run tests'
+
 - script: dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj --configuration $(buildConfiguration) --logger trx
   displayName: 'dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj $(buildConfiguration)'
 

@@ -4,7 +4,7 @@ namespace RemindMeWhenIamAt.Tests.Sut.Pages
 {
     internal class NewReminderPage
     {
-        public IndexPage AddReminder(Reminder reminder)
+        public DefaultPage AddReminder(Reminder reminder)
         {
             throw new System.NotImplementedException();
         }

@@ -12,7 +12,7 @@ namespace RemindMeWhenIamAt.Tests
 
         public static void UseClasses()
         {
-            Use(new IndexPage());
+            Use(new DefaultPage());
         }
     }
 }

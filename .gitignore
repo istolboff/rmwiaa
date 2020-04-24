@@ -340,3 +340,6 @@ healthchecksdb
 
 # SpecFlow code-behind
 *.feature.cs
+
+# VSCode settings
+.vscode/

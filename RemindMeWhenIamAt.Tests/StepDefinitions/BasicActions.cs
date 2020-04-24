@@ -11,14 +11,14 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         [Given(@"user (.*) sets up the following reminders?")]
         public static void GivenUserSetsUpTheFollowingReminder(string userName, Table remindersToSetup)
         {
-            var indexPage = TestRun.ApplicationUnderTest.NavigateTo<IndexPage>();
+            var indexPage = TestRun.ApplicationUnderTest.NavigateTo<DefaultPage>();
             foreach (var reminder in remindersToSetup.CreateSet<Reminder>())
             {
                 var newReminderPage = indexPage.RequestAddingNewReminder();
                 indexPage = newReminderPage.AddReminder(reminder);
             }
 
-            System.Diagnostics.Trace.WriteLine(userName);
+            MakeCompilerHappy.Use(userName);
         }
     }
 }
