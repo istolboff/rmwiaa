@@ -14,7 +14,12 @@ namespace RemindMeWhenIamAt.Server
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
+        // ReSharper disable MemberCanBePrivate.Global
+        // ReSharper disable UnusedAutoPropertyAccessor.Global
         public IConfiguration Configuration { get; }
+
+        // ReSharper enable UnusedAutoPropertyAccessor.Global
+        // ReSharper enable MemberCanBePrivate.Global
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -26,9 +31,12 @@ namespace RemindMeWhenIamAt.Server
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // ReSharper disable UnusedMember.Global
 #pragma warning disable CA1822 // Mark members as static
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 #pragma warning restore CA1822 // Mark members as static
+
+        // ReSharper enable UnusedMember.Global
         {
             if (env.IsDevelopment())
             {

@@ -1,4 +1,6 @@
 ﻿using RemindMeWhenIamAt.SharedCode;
+using RemindMeWhenIamAt.Tests.Miscellaneous;
+using RemindMeWhenIamAt.Tests.Sut;
 using RemindMeWhenIamAt.Tests.Sut.Pages;
 using TechTalk.SpecFlow;
 using TechTalk.SpecFlow.Assist;
@@ -6,12 +8,17 @@ using TechTalk.SpecFlow.Assist;
 namespace RemindMeWhenIamAt.Tests.StepDefinitions
 {
     [Binding]
-    internal static class BasicActions
+    internal sealed class BasicActions
     {
-        [Given(@"user (.*) sets up the following reminders?")]
-        public static void GivenUserSetsUpTheFollowingReminder(string userName, Table remindersToSetup)
+        public BasicActions(ApplicationUnderTest applicationUnderTest)
         {
-            var indexPage = TestRun.ApplicationUnderTest.NavigateTo<DefaultPage>();
+            _applicationUnderTest = applicationUnderTest;
+        }
+
+        [Given(@"user (.*) sets up the following reminders?")]
+        public void GivenUserSetsUpTheFollowingReminder(string userName, Table remindersToSetup)
+        {
+            var indexPage = _applicationUnderTest.NavigateTo<DefaultPage>();
             foreach (var reminder in remindersToSetup.CreateSet<Reminder>())
             {
                 var newReminderPage = indexPage.RequestAddingNewReminder();
@@ -20,5 +27,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
 
             MakeCompilerHappy.Use(userName);
         }
-    }
+
+        private readonly ApplicationUnderTest _applicationUnderTest;
+   }
 }

@@ -1,3 +1,4 @@
+* switch to headless Chrome in tests
 * Add the following
 Scenario: Several notifications in different places
     Given user A sets up the following reminders

@@ -1,11 +1,27 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
+using RemindMeWhenIamAt.Server;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
     internal static class Service
     {
-        public static string FolderPath => Directory.GetParent(typeof(Service).Assembly.Location).FullName;
+        public static Uri RootUrl
+        {
+            get
+            {
+                var launchSettingsFilePath = Path.Combine(Service.FolderPath, @"Properties\launchSettings.json");
+                var urls = ((JsonElement)JsonSerializer.Deserialize<object>(File.ReadAllText(launchSettingsFilePath)))
+                            .GetProperty("profiles")
+                            .GetProperty("RemindMeWhenIamAt.Server")
+                            .GetProperty("applicationUrl")
+                            .ToString();
+                return new Uri(urls.Split(";").Single(u => u.StartsWith("http://", StringComparison.OrdinalIgnoreCase)));
+            }
+        }
 
         public static Process Start()
         {
@@ -14,8 +30,10 @@ namespace RemindMeWhenIamAt.Tests.Sut
                 {
                     WindowStyle = ProcessWindowStyle.Normal,
                     FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
-                    WorkingDirectory = Path.Combine(FolderPath, @"..\..\publish")
+                    WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish"))
                 });
         }
+
+        private static string FolderPath => Directory.GetParent(typeof(Startup).Assembly.Location).FullName;
     }
 }

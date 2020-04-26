@@ -1,9 +1,11 @@
 @page "/AddReminder"
 @inject NavigationManager NavigationManager
 
-<span>X:<input placeholder="X" @bind="_x" />, Y:<input placeholder="Y" @bind="_y" /></span>
+<span>X:<input id="_x" placeholder="X" @bind="_x" />, Y:<input id="_y" placeholder="Y" @bind="_y" /></span>
 
-<span><button @onclick="Add">OK</button>&nbsp;<button @onclick="Cancel">Cancel</button></span>
+<span>Message:<input id="_message" placeholder="Reminder message" @bind="_message"></span>
+
+<span><button id="_doAdd" @onclick="Add">OK</button>&nbsp;<button @onclick="Cancel">Cancel</button></span>
 
 @code {
     private void Add()
@@ -18,4 +20,5 @@
 
     private double? _x;
     private double? _y;
+    private string? _message;
 }

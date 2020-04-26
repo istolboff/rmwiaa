@@ -1,30 +1,29 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
+using OpenQA.Selenium;
+using RemindMeWhenIamAt.Tests.Miscellaneous;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
     internal sealed class ApplicationUnderTest
     {
-        public static string RootUrl
+        public ApplicationUnderTest(Uri rootUrl, IWebDriver webDriver)
         {
-            get
-            {
-                var launchSettingsFilePath = Path.Combine(Service.FolderPath, "launchSettings.json");
-                var urls = ((JsonElement)JsonSerializer.Deserialize<object>(File.ReadAllText(launchSettingsFilePath)))
-                            .GetProperty("profiles")
-                            .GetProperty("RemindMeWhenIamAt.Server")
-                            .GetProperty("applicationUrl")
-                            .ToString();
-                return urls.Split(";").Single(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
-            }
+            RootUrl = rootUrl;
+            _webDriver = webDriver;
         }
+
+        public Uri RootUrl { get; }
 
         public TPage NavigateTo<TPage>()
             where TPage : class
+            => (TPage)MakeCompilerHappy.EnsureNotNull(Activator.CreateInstance(typeof(TPage), this));
+
+        public ISearchContext NavigateTo(Uri url)
         {
-            throw new NotImplementedException();
+            _webDriver.Navigate().GoToUrl(url);
+            return _webDriver;
         }
+
+        private readonly IWebDriver _webDriver;
     }
 }

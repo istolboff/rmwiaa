@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 namespace RemindMeWhenIamAt.Server
 {
 #pragma warning disable CA1052 // Static holder types should be Static or NotInheritable
-    public class Program
+    public static class Program
 #pragma warning restore CA1052 // Static holder types should be Static or NotInheritable
     {
         public static void Main(string[] args)
@@ -12,7 +12,7 @@ namespace RemindMeWhenIamAt.Server
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

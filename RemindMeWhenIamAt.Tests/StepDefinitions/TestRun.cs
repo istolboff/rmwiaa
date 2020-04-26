@@ -1,35 +1,42 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using BoDi;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using RemindMeWhenIamAt.Tests.Sut;
 using TechTalk.SpecFlow;
 
 namespace RemindMeWhenIamAt.Tests.StepDefinitions
 {
     [Binding]
-    internal static class TestRun
+    internal sealed class TestRun
     {
-        public static ApplicationUnderTest ApplicationUnderTest
-        {
-            get => applicationUnderTest
-#pragma warning disable CA1303 // Do not pass literals as localized parameters
-                ?? throw new InvalidOperationException("Test suite logic exception: _applicationUnderTest should have been initialized during TestRun setup.");
-#pragma warning restore CA1303 // Do not pass literals as localized parameters
-        }
-
         [BeforeTestRun]
-        public static void SetupTestRun()
-        {
-            serviceProcess = Service.Start();
-            applicationUnderTest = new ApplicationUnderTest();
-        }
+        public static void SetupTestRun() =>
+            _serviceProcess = Service.Start();
 
         [AfterTestRun]
-        public static void TeardownTestRun()
+        public static void TeardownTestRun() =>
+            _serviceProcess.Kill();
+
+        public TestRun(IObjectContainer diContainer)
         {
-            serviceProcess.Kill();
+            _diContainer = diContainer;
         }
 
-        private static Process serviceProcess = new Process();
-        private static ApplicationUnderTest? applicationUnderTest;
+        [BeforeScenario]
+        public void InitializeWebDriver()
+        {
+#pragma warning disable CA2000 // https://specflow.org/documentation/Context-Injection/  If the injected objects implement IDisposable, they will be disposed after the scenario is executed.
+            _diContainer.RegisterInstanceAs<IWebDriver>(new ChromeDriver());
+#pragma warning restore CA2000
+            _diContainer.RegisterInstanceAs(Service.RootUrl);
+        }
+
+        [AfterScenario]
+        public void QuitWebDriver() =>
+            _diContainer.Resolve<IWebDriver>().Quit();
+
+        private static Process _serviceProcess = new Process();
+        private readonly IObjectContainer _diContainer;
     }
 }
