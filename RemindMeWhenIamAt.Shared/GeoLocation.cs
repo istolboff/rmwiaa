@@ -4,6 +4,12 @@ namespace RemindMeWhenIamAt.SharedCode
 {
     public readonly struct GeoLocation : IEquatable<GeoLocation>
     {
+        public GeoLocation(decimal x, decimal y)
+        {
+            X = x;
+            Y = y;
+        }
+
 #pragma warning disable CA1051 // It's a readonly struct
         public readonly decimal X;
 

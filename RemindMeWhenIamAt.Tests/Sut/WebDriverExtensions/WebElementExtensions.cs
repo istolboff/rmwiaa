@@ -1,5 +1,4 @@
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using OpenQA.Selenium;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
@@ -9,16 +8,23 @@ namespace RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions
     internal static class WebElementExtensions
     {
         public static void WaitForElementPresence(
-            this ISearchContext @this,
+            this IWebDriver @this,
             By by,
             TimeSpan? timeout = null,
-            string? errorDescription = null)
+            string? pageInfo = null)
         {
             Wait.Until(
                 () => @this.FindElements(by),
                 elements => elements.Any(),
                 timeout ?? TimeSpan.FromSeconds(5),
-                errorDescription != null ? _ => new InvalidOperationException(errorDescription) : default(Func<ReadOnlyCollection<IWebElement>, Exception>));
+                _ => new InvalidOperationException(DescribeProblem()));
+
+            string DescribeProblem()
+            {
+                var requestDetails = pageInfo != null ? $"'{pageInfo}' " : string.Empty;
+                return $"Could not locate expected element [{by}] on the page served for {requestDetails}request. " +
+                       $"The page source is the following:{Environment.NewLine}{@this.PageSource}";
+            }
         }
 
         public static void WaitUntilItBecomesStaleBecauseNewPageHasLoaded(this IWebElement @this) =>

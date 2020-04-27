@@ -7,30 +7,28 @@ namespace RemindMeWhenIamAt.Tests.Sut.Pages
 {
     internal class NewReminderPage
     {
-        public NewReminderPage(ISearchContext searchContext)
+        public NewReminderPage(IWebDriver webDriver)
         {
-            _searchContext = searchContext;
-            WaitUntilPageLoadedCompletely(searchContext);
+            _webDriver = webDriver;
+            WaitUntilPageLoadedCompletely(webDriver);
         }
 
         public DefaultPage AddReminder(Reminder reminder)
         {
-            _searchContext.FindElement(By.Id("_x")).SendKeys(reminder.Location.X.ToString(CultureInfo.InvariantCulture));
-            _searchContext.FindElement(By.Id("_y")).SendKeys(reminder.Location.Y.ToString(CultureInfo.InvariantCulture));
-            _searchContext.FindElement(By.Id("_message")).SendKeys(reminder.Message);
-            var submitCommand = _searchContext.FindElement(By.Id("_doAdd"));
+            _webDriver.FindElement(By.Id("_x")).SendKeys(reminder.Location.X.ToString(CultureInfo.InvariantCulture));
+            _webDriver.FindElement(By.Id("_y")).SendKeys(reminder.Location.Y.ToString(CultureInfo.InvariantCulture));
+            _webDriver.FindElement(By.Id("_message")).SendKeys(reminder.Message);
+            var submitCommand = _webDriver.FindElement(By.Id("_doAdd"));
             submitCommand.Click();
             submitCommand.WaitUntilItBecomesStaleBecauseNewPageHasLoaded();
-            return new DefaultPage(_searchContext);
+            return new DefaultPage(_webDriver);
         }
 
-        private static void WaitUntilPageLoadedCompletely(ISearchContext searchContext)
+        private static void WaitUntilPageLoadedCompletely(IWebDriver webDriver)
         {
-            searchContext.WaitForElementPresence(
-                By.Id("_doAdd"),
-                errorDescription: "There seems to be an error in the page flow: we are supposed to be at the default AddReminder page, while it is some other page.");
+            webDriver.WaitForElementPresence(By.Id("_doAdd"), pageInfo: "/AddReminder");
         }
 
-        private readonly ISearchContext _searchContext;
+        private readonly IWebDriver _webDriver;
     }
 }

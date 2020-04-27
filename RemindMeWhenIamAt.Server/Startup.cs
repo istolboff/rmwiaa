@@ -51,7 +51,11 @@ namespace RemindMeWhenIamAt.Server
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            if (!"off".Equals(Configuration["httpsredirection"], StringComparison.InvariantCultureIgnoreCase))
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 

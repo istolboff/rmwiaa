@@ -9,31 +9,29 @@ namespace RemindMeWhenIamAt.Tests.Sut.Pages
         [UsedImplicitly] // see ApplicationUnderTest.NavigateTo<TPage>
         public DefaultPage(ApplicationUnderTest applicationUnderTest)
         {
-            _searchContext = applicationUnderTest.NavigateTo(applicationUnderTest.RootUrl);
-            WaitUntilPageLoadedCompletely(_searchContext);
+            _webDriver = applicationUnderTest.NavigateTo(applicationUnderTest.RootUrl);
+            WaitUntilPageLoadedCompletely(_webDriver);
         }
 
-        public DefaultPage(ISearchContext searchContext)
+        public DefaultPage(IWebDriver webDriver)
         {
-            _searchContext = searchContext;
-            WaitUntilPageLoadedCompletely(_searchContext);
+            _webDriver = webDriver;
+            WaitUntilPageLoadedCompletely(webDriver);
         }
 
         public NewReminderPage RequestAddingNewReminder()
         {
-            var addReminderLink = _searchContext.FindElement(By.LinkText("Add Reminder"));  /*.FindElement(By.Id("_addReminder"));*/
+            var addReminderLink = _webDriver.FindElement(By.LinkText("Add Reminder"));  /*.FindElement(By.Id("_addReminder"));*/
             addReminderLink.Click();
             addReminderLink.WaitUntilItBecomesStaleBecauseNewPageHasLoaded();
-            return new NewReminderPage(_searchContext);
+            return new NewReminderPage(_webDriver);
         }
 
-        private static void WaitUntilPageLoadedCompletely(ISearchContext searchContext)
+        private static void WaitUntilPageLoadedCompletely(IWebDriver webDriver)
         {
-            searchContext.WaitForElementPresence(
-                By.Id("_addReminder"),
-                errorDescription: "There seems to be an error in the page flow: we are supposed to be at the default application page, while it is some other page.");
+            webDriver.WaitForElementPresence(By.Id("_addReminder"), pageInfo: "default page");
         }
 
-        private readonly ISearchContext _searchContext;
+        private readonly IWebDriver _webDriver;
     }
 }

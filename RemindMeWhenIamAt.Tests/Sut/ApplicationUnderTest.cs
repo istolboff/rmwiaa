@@ -18,7 +18,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
             where TPage : class
             => (TPage)MakeCompilerHappy.EnsureNotNull(Activator.CreateInstance(typeof(TPage), this));
 
-        public ISearchContext NavigateTo(Uri url)
+        public IWebDriver NavigateTo(Uri url)
         {
             _webDriver.Navigate().GoToUrl(url);
             return _webDriver;

@@ -28,9 +28,10 @@ namespace RemindMeWhenIamAt.Tests.Sut
             return Process.Start(
                 new ProcessStartInfo
                 {
-                    WindowStyle = ProcessWindowStyle.Normal,
                     FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
-                    WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish"))
+                    Arguments = "--httpsredirection=off",
+                    WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish")),
+                    WindowStyle = ProcessWindowStyle.Normal
                 });
         }
 
