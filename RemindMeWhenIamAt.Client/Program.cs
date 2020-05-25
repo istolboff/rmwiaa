@@ -16,7 +16,7 @@ namespace RemindMeWhenIamAt.Client
             builder.RootComponents.Add<App>("app");
 
 #pragma warning disable CA2000 // Container takes care of disposing HttpClient
-            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 #pragma warning restore CA2000 // DisposeObjectsBeforeLosingScope
 
             await builder.Build().RunAsync().ConfigureAwait(true);
