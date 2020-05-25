@@ -19,7 +19,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
                             .GetProperty("RemindMeWhenIamAt.Server")
                             .GetProperty("applicationUrl")
                             .ToString();
-                return new Uri(urls.Split(";").Single(u => u.StartsWith("http://", StringComparison.OrdinalIgnoreCase)));
+                return new Uri(urls.Split(";").Single(u => u.StartsWith("https://", StringComparison.OrdinalIgnoreCase)));
             }
         }
 
@@ -29,7 +29,6 @@ namespace RemindMeWhenIamAt.Tests.Sut
                 new ProcessStartInfo
                 {
                     FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
-                    Arguments = "--httpsredirection=off",
                     WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish")),
                     WindowStyle = ProcessWindowStyle.Normal
                 });

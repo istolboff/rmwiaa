@@ -1,6 +1,6 @@
 {
-  "name": "RemindMeWhenIamAt.Client",
-  "short_name": "RemindMeWhenIamAt.Client",
+  "name": "Remind Me When I am At...",
+  "short_name": "Remind me when I am at",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

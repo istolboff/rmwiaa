@@ -25,5 +25,7 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
         {
             return v ?? throw new ArgumentNullException(nameof(v));
         }
+
+        public static string SuppressCa1303(string value) => value;
     }
 }

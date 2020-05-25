@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using BoDi;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
+using RemindMeWhenIamAt.Tests.Miscellaneous;
 using RemindMeWhenIamAt.Tests.Sut;
 using TechTalk.SpecFlow;
 
@@ -11,12 +11,39 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
     internal sealed class TestRun
     {
         [BeforeTestRun]
-        public static void SetupTestRun() =>
-            _serviceProcess = Service.Start();
+        public static void SetupTestRun()
+        {
+            try
+            {
+                _serviceProcess = Service.Start();
+                _pwaInChromeDriver = new PwaInChromeDriver("Remind Me When I am At...", Service.RootUrl);
+                _pwaInChromeDriver.AddPwaToHomeScreen();
+            }
+            catch (Exception exception) when (!exception.ShouldNotBeCaught())
+            {
+                Trace.WriteLine($"Encountered exception during Testrun setup: {Environment.NewLine}{exception}");
+                CloseChromeDriverAndServer();
+                throw;
+            }
+        }
 
         [AfterTestRun]
-        public static void TeardownTestRun() =>
-            _serviceProcess.Kill();
+        public static void TeardownTestRun()
+        {
+            if (_pwaInChromeDriver != null)
+            {
+                try
+                {
+                    _pwaInChromeDriver.RemoveFromHomeScreen();
+                }
+                catch (Exception exception) when (!exception.ShouldNotBeCaught())
+                {
+                    Trace.WriteLine($"Encountered exception during Testrun Teardown: {Environment.NewLine}{exception}");
+                }
+            }
+
+            CloseChromeDriverAndServer();
+        }
 
         public TestRun(IObjectContainer diContainer)
         {
@@ -26,17 +53,27 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         [BeforeScenario]
         public void InitializeWebDriver()
         {
-#pragma warning disable CA2000 // https://specflow.org/documentation/Context-Injection/  If the injected objects implement IDisposable, they will be disposed after the scenario is executed.
-            _diContainer.RegisterInstanceAs<IWebDriver>(new ChromeDriver());
-#pragma warning restore CA2000
+            Debug.Assert(_pwaInChromeDriver != null, "Test logic error: _pwaInChromeDriver should have been initialized in SetupTestRun.");
+            _diContainer.RegisterInstanceAs(_pwaInChromeDriver.WebDriver);
             _diContainer.RegisterInstanceAs(Service.RootUrl);
         }
 
-        [AfterScenario]
-        public void QuitWebDriver() =>
-            _diContainer.Resolve<IWebDriver>().Quit();
+        private static void CloseChromeDriverAndServer()
+        {
+            if (_pwaInChromeDriver != null)
+            {
+                _pwaInChromeDriver.Close();
+                _pwaInChromeDriver.Dispose();
+            }
+
+            if (!string.IsNullOrEmpty(_serviceProcess.StartInfo.FileName))
+            {
+                _serviceProcess.Kill();
+            }
+        }
 
         private static Process _serviceProcess = new Process();
+        private static PwaInChromeDriver? _pwaInChromeDriver;
         private readonly IObjectContainer _diContainer;
     }
 }
