@@ -21,7 +21,32 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>navigator.serviceWorker.register('service-worker.js').then(async _ =>  
+    {
+        const status = await navigator.permissions.query({ name: 'periodic-background-sync', });
+        if (status.state === 'granted') 
+        {
+            console.info('Periodic background sync can be used.')
+        } 
+        else 
+        {
+            console.info('Periodic background sync cannot be used.')
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        if ('periodicSync' in registration) 
+        {
+            try 
+            {
+                await registration.periodicSync.register('content-sync', { minInterval: 1000, });
+                console.info('periodicSync registered with serviceWorker.')
+            } 
+            catch (error) 
+            {
+                console.info('Could not register periodic Sync! ' + error)
+            }
+        }
+    });</script>
 </body>
 
 </html>

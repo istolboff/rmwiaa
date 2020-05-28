@@ -6,6 +6,15 @@ self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
 
+self.addEventListener('periodicsync', async event => {
+    console.log('periodicsync received for ' + event.tag);
+    const onPeriodicSync = async() => {
+      console.log('process completed.');
+    };
+    event.waitUntil(onPeriodicSync());
+  });
+  
+
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
 const offlineAssetsInclude = [ /\.dll$/, /\.pdb$/, /\.wasm/, /\.html/, /\.js$/, /\.json$/, /\.css$/, /\.woff$/, /\.png$/, /\.jpe?g$/, /\.gif$/, /\.ico$/ ];

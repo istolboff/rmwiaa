@@ -38,6 +38,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
                     e => e.Text == "Установить"));
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
+            _chromeDriver.Navigate().Refresh(); // in order to let chrome realize that it's now in a Home Screen mode
 
             // .Click() doesn't work for this button for some reason.
             void EmulateClickingTheButtonBySendingEnterKey(WindowsElement button) => button.SendKeys(Keys.Enter);
