@@ -21,14 +21,24 @@ steps:
 - script: dotnet publish --output .\bin\$(buildConfiguration)\publish --configuration $(buildConfiguration)
   displayName: 'publish locally in order to be able to run tests'
 
-#- script: dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj --configuration $(buildConfiguration) --logger trx
-#  displayName: 'dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj $(buildConfiguration)'
+- task: WinAppDriver.winappdriver-pipelines-task.winappdriver-pipelines-task.Windows Application Driver@0
+  displayName: 'Start - WinAppDriver'
 
-#- task: PublishTestResults@2
-#  condition: succeededOrFailed()
-#  inputs:
-#    testRunner: VSTest
-#    testResultsFiles: '**/*.trx'
+- script: dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj --configuration $(buildConfiguration) --logger trx
+  displayName: 'dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj $(buildConfiguration)'
+
+- task: WinAppDriver.winappdriver-pipelines-task.winappdriver-pipelines-task.Windows Application Driver@0
+  displayName: 'Stop - WinAppDriver'
+  inputs:
+    OperationType: Stop
+  continueOnError: true
+  condition: always()
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publishing App...'
