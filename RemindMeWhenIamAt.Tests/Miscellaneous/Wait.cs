@@ -12,7 +12,7 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
             Until(predicate, value => value, timeout, null, callerMemberName);
         }
 
-        public static void Until<T>(
+        public static T Until<T>(
             Func<T> selectValue,
             Predicate<T> checkValue,
             TimeSpan timeout,
@@ -26,7 +26,7 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
                 var value = selectValue();
                 if (checkValue(value))
                 {
-                    return;
+                    return value;
                 }
 
                 if (stopWatch.Elapsed >= timeout)
@@ -38,9 +38,11 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
 #pragma warning restore CA1303
                 }
 
-                Trace.WriteLine($"Probing in Wait.Until() called from {callerMemberName} failed, sleeping for a while.");
-                Thread.Sleep(TimeSpan.FromMilliseconds(250));
+                Trace.WriteLine($"Probing in Wait.Until() called from {callerMemberName} failed, sleeping for {AWhile}.");
+                Thread.Sleep(AWhile);
             }
         }
+
+        private static readonly TimeSpan AWhile = TimeSpan.FromMilliseconds(250);
     }
 }

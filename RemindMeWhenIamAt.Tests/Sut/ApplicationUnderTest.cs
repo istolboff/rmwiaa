@@ -1,6 +1,6 @@
 ﻿using System;
 using OpenQA.Selenium;
-using RemindMeWhenIamAt.Tests.Miscellaneous;
+using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
@@ -16,7 +16,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public TPage NavigateTo<TPage>()
             where TPage : class
-            => (TPage)MakeCompilerHappy.EnsureNotNull(Activator.CreateInstance(typeof(TPage), this));
+            => (TPage)EnsureNotNull(Activator.CreateInstance(typeof(TPage), this));
 
         public IWebDriver NavigateTo(Uri url)
         {

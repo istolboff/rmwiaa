@@ -9,7 +9,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Chrome;
-using RemindMeWhenIamAt.Tests.Miscellaneous;
+using RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
@@ -27,17 +27,16 @@ namespace RemindMeWhenIamAt.Tests.Sut
         public void AddPwaToHomeScreen()
         {
             using var chromeSession = CreatePwaWindowDriver(_pwaName + " - Google Chrome");
-            WaitForElement(
-                chromeSession,
+            chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/Pane/Button"),
                 element => element.Text.Contains(_pwaName, StringComparison.OrdinalIgnoreCase))
                 .Click();
             EmulateClickingTheButtonBySendingEnterKey(
-                WaitForElement(
-                    chromeSession,
+                chromeSession.WaitForElement(
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
                     e => e.Text == "Установить"));
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
+            Trace.WriteLine($"PWA '{_pwaName}' has been added to Home Screen.");
             _chromeDriver.Navigate().Refresh(); // in order to let chrome realize that it's now in a Home Screen mode
 
             // .Click() doesn't work for this button for some reason.
@@ -48,28 +47,26 @@ namespace RemindMeWhenIamAt.Tests.Sut
         {
             using var chromeSession = CreatePwaWindowDriver(_pwaName);
 
-            WaitForElement(chromeSession, By.XPath("/Pane/Pane/Pane/Pane/Pane/MenuItem"))
+            chromeSession.WaitForElement(By.XPath("/Pane/Pane/Pane/Pane/Pane/MenuItem"))
                 .Click();
 
-            WaitForElement(
-                chromeSession,
+            chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/MenuBar/Pane/Menu/MenuItem"),
                 menuItem => menuItem.Text.IndexOf(_pwaName, StringComparison.OrdinalIgnoreCase) >= 0)
                 .Click();
 
-            WaitForElement(
-                chromeSession,
+            chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/CheckBox"),
                 checkBox => checkBox.Text.Contains("удалить данные из Chrome", StringComparison.OrdinalIgnoreCase))
                 .Click();
 
-            WaitForElement(
-                chromeSession,
+            chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
                 button => button.Text.Equals("Удалить", StringComparison.OrdinalIgnoreCase))
                 .Click();
 
             Thread.Sleep(TimeSpan.FromMilliseconds(2000));
+            Trace.WriteLine($"PWA '{_pwaName}' has been removed from Home Screen.");
         }
 
         public void Close()
@@ -93,7 +90,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         private WindowsDriver<WindowsElement> CreatePwaWindowDriver(string browserWindowTitle)
         {
-            var webElement = _desktopSession.FindElementByName(browserWindowTitle);
+            var webElement = _desktopSession.WaitForElement(browserWindowTitle);
             var handle = int.Parse(webElement.GetAttribute("NativeWindowHandle"), CultureInfo.InvariantCulture);
 
             var chromeOptions = new AppiumOptions();
@@ -102,24 +99,6 @@ namespace RemindMeWhenIamAt.Tests.Sut
             chromeOptions.AddAdditionalCapability("appTopLevelWindow", handle.ToString("X", CultureInfo.InvariantCulture));
 
             return new WindowsDriver<WindowsElement>(new Uri(WinAppDriverUrl), chromeOptions);
-        }
-
-        private static WindowsElement WaitForElement(
-            WindowsDriver<WindowsElement> driver,
-            By by,
-            Func<WindowsElement, bool>? extraElementFilter = null,
-            TimeSpan? timeout = null)
-        {
-            WindowsElement? result = null;
-            Wait.Until(
-                () =>
-                {
-                    return result = driver.FindElements(by).SingleOrDefault(extraElementFilter ?? (_ => true));
-                },
-                r => r != null,
-                timeout ?? TimeSpan.FromSeconds(10),
-                _ => new InvalidOperationException("Couldn't find " + by + " in " + driver.FindElement(By.XPath("/Pane")).WrappedDriver.PageSource));
-            return result!;
         }
 
         private static WindowsDriver<WindowsElement> CreateWindowsDriver()

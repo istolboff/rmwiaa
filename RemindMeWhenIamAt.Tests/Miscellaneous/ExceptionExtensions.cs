@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace RemindMeWhenIamAt.Tests.Miscellaneous
 {
-    public static class ExceptionExtensions
+    internal static class ExceptionExtensions
     {
         public static bool ShouldNotBeCaught(this Exception exception)
         {

@@ -5,7 +5,7 @@ using RemindMeWhenIamAt.Tests.Sut;
 
 namespace RemindMeWhenIamAt.Tests.Miscellaneous
 {
-    public static class MakeCompilerHappy
+    internal static class MakeCompilerHappy
     {
 #pragma warning disable CA1801 // Review unused parameters
         public static void Use<T>([UsedImplicitly]T unused)
@@ -21,7 +21,8 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
             Use(new object[] { new ApplicationUnderTest(null!, null!), new TestRun(null!), new BasicActions(null!) });
         }
 
-        public static object EnsureNotNull(object? v)
+        public static T EnsureNotNull<T>(T? v)
+            where T : class
         {
             return v ?? throw new ArgumentNullException(nameof(v));
         }
