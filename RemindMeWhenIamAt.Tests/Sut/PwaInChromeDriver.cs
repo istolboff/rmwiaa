@@ -90,15 +90,28 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         private WindowsDriver<WindowsElement> CreatePwaWindowDriver(string browserWindowTitle)
         {
-            var webElement = _desktopSession.WaitForElement(browserWindowTitle);
-            var handle = int.Parse(webElement.GetAttribute("NativeWindowHandle"), CultureInfo.InvariantCulture);
-
+            var chromeWindowHandle = FindChromeWindow(browserWindowTitle);
             var chromeOptions = new AppiumOptions();
             chromeOptions.AddAdditionalCapability("platformName", "Windows");
             chromeOptions.AddAdditionalCapability("deviceName", "WindowsPC");
-            chromeOptions.AddAdditionalCapability("appTopLevelWindow", handle.ToString("X", CultureInfo.InvariantCulture));
-
+            chromeOptions.AddAdditionalCapability("appTopLevelWindow", chromeWindowHandle.ToString("X", CultureInfo.InvariantCulture));
             return new WindowsDriver<WindowsElement>(new Uri(WinAppDriverUrl), chromeOptions);
+        }
+
+        private int FindChromeWindow(string windowTitle)
+        {
+            try
+            {
+                var webElement = _desktopSession.WaitForElement(windowTitle);
+                return int.Parse(webElement.GetAttribute("NativeWindowHandle"), CultureInfo.InvariantCulture);
+            }
+            catch (TimeoutException exception)
+            {
+                throw new InvalidOperationException(
+                    $"Failed waiting for Chrome Window with title {windowTitle}{Environment.NewLine}" +
+                    $"Test-driven Chrome browser's current page source is: {_chromeDriver.PageSource}",
+                    exception);
+            }
         }
 
         private static WindowsDriver<WindowsElement> CreateWindowsDriver()
