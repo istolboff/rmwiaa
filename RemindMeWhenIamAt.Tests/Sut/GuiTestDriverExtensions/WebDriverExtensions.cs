@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenQA.Selenium;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
 
-namespace RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions
+namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
 {
-    internal static class WebElementExtensions
+    internal static class WebDriverExtensions
     {
         public static void WaitForElementPresence(
             this IWebDriver @this,
@@ -27,19 +28,15 @@ namespace RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions
             }
         }
 
-        public static void WaitUntilItBecomesStaleBecauseNewPageHasLoaded(this IWebElement @this) =>
-            Wait.Until(@this.IsStale, TimeSpan.FromSeconds(30));
-
-        private static bool IsStale(this IWebElement @this)
+        public static IReadOnlyCollection<string> GetBrowserLogs(this IWebDriver @this)
         {
             try
             {
-                @this.FindElement(By.Id("dummy-element-id"));
-                return false;
+                return @this.Manage().Logs.GetLog(LogType.Browser).Select(logEntry => logEntry.ToString()).ToArray();
             }
-            catch (StaleElementReferenceException)
+            catch (NullReferenceException)
             {
-                return true;
+                return new[] { "Couldn't retrive Browser logs." };
             }
         }
     }

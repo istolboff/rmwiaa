@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 using OpenQA.Selenium;
-using RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions;
+using RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions;
 
 namespace RemindMeWhenIamAt.Tests.Sut.Pages
 {

@@ -6,10 +6,9 @@ using System.Linq;
 using System.Management;
 using System.Threading;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Chrome;
-using RemindMeWhenIamAt.Tests.Sut.WebDriverExtensions;
+using RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
@@ -26,7 +25,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public void AddPwaToHomeScreen()
         {
-            using var chromeSession = CreatePwaWindowDriver(_pwaName + " - Google Chrome");
+            using var chromeSession = WinAppDriver.AttachToBrowser(WebDriver, " - Google Chrome");
             chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/Pane/Button"),
                 element => element.Text.Contains(_pwaName, StringComparison.OrdinalIgnoreCase))
@@ -34,7 +33,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
             EmulateClickingTheButtonBySendingEnterKey(
                 chromeSession.WaitForElement(
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
-                    e => e.Text == "Установить"));
+                    e => e.Text == "Install"));
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
             Trace.WriteLine($"PWA '{_pwaName}' has been added to Home Screen.");
             _chromeDriver.Navigate().Refresh(); // in order to let chrome realize that it's now in a Home Screen mode
@@ -45,7 +44,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public void RemoveFromHomeScreen()
         {
-            using var chromeSession = CreatePwaWindowDriver(_pwaName);
+            using var chromeSession = WinAppDriver.AttachToBrowser(WebDriver);
 
             chromeSession.WaitForElement(By.XPath("/Pane/Pane/Pane/Pane/Pane/MenuItem"))
                 .Click();
@@ -57,12 +56,12 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
             chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/CheckBox"),
-                checkBox => checkBox.Text.Contains("удалить данные из Chrome", StringComparison.OrdinalIgnoreCase))
+                checkBox => checkBox.Text.Contains("also clear data from chrome", StringComparison.OrdinalIgnoreCase))
                 .Click();
 
             chromeSession.WaitForElement(
                 By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
-                button => button.Text.Equals("Удалить", StringComparison.OrdinalIgnoreCase))
+                button => button.Text.Equals("Remove", StringComparison.OrdinalIgnoreCase))
                 .Click();
 
             Thread.Sleep(TimeSpan.FromMilliseconds(2000));
@@ -85,48 +84,15 @@ namespace RemindMeWhenIamAt.Tests.Sut
         public void Dispose()
         {
             _chromeDriver?.Dispose();
-            _desktopSession?.Dispose();
-        }
-
-        private WindowsDriver<WindowsElement> CreatePwaWindowDriver(string browserWindowTitle)
-        {
-            var chromeWindowHandle = FindChromeWindow(browserWindowTitle);
-            var chromeOptions = new AppiumOptions();
-            chromeOptions.AddAdditionalCapability("platformName", "Windows");
-            chromeOptions.AddAdditionalCapability("deviceName", "WindowsPC");
-            chromeOptions.AddAdditionalCapability("appTopLevelWindow", chromeWindowHandle.ToString("X", CultureInfo.InvariantCulture));
-            return new WindowsDriver<WindowsElement>(new Uri(WinAppDriverUrl), chromeOptions);
-        }
-
-        private int FindChromeWindow(string windowTitle)
-        {
-            try
-            {
-                var webElement = _desktopSession.WaitForElement(windowTitle);
-                return int.Parse(webElement.GetAttribute("NativeWindowHandle"), CultureInfo.InvariantCulture);
-            }
-            catch (TimeoutException exception)
-            {
-                throw new InvalidOperationException(
-                    $"Failed waiting for Chrome Window with title {windowTitle}{Environment.NewLine}" +
-                    $"Test-driven Chrome browser's current page source is: {_chromeDriver.PageSource}",
-                    exception);
-            }
-        }
-
-        private static WindowsDriver<WindowsElement> CreateWindowsDriver()
-        {
-            var options = new AppiumOptions();
-            options.AddAdditionalCapability("platformName", "Windows");
-            options.AddAdditionalCapability("deviceName", "WindowsPC");
-            options.AddAdditionalCapability("app", "Root");
-            return new WindowsDriver<WindowsElement>(new Uri(WinAppDriverUrl), options);
         }
 
         private static (ChromeDriver chromeDriver, Process rootChromeProcessCreatedByChromeDriver) StartChromeDriver()
         {
             var existingChromeProcesseIds = ListChromeProcessIds().Select(p => p.Id).ToArray();
-            var chromeDriver = new ChromeDriver();
+            var options = new ChromeOptions();
+            options.AddArguments("--lang=en");
+            options.SetLoggingPreference(LogType.Browser, LogLevel.All);
+            var chromeDriver = new ChromeDriver(options);
             var rootChromeProcessCreatedByChromeDriver = PickRootChromeProcessCreatedByChromeDriver(
                 ListChromeProcessIds().Where(p => !existingChromeProcesseIds.Contains(p.Id)).ToArray());
             return (chromeDriver, rootChromeProcessCreatedByChromeDriver);
@@ -151,10 +117,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
         }
 
         private readonly string _pwaName;
-        private readonly WindowsDriver<WindowsElement> _desktopSession = CreateWindowsDriver();
         private readonly ChromeDriver _chromeDriver;
         private readonly Process _rootChromeProcessCreatedByChromeDriver;
-
-        private const string WinAppDriverUrl = "http://127.0.0.1:4723";
     }
 }

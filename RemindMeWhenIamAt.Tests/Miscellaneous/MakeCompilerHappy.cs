@@ -15,7 +15,6 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
 
 // ReSharper disable UnusedMember.Global
         public static void GetRidOfCa1812()
-
 // ReSharper enable UnusedMember.Global
         {
             Use(new object[] { new ApplicationUnderTest(null!, null!), new TestRun(null!), new BasicActions(null!) });
@@ -28,5 +27,7 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
         }
 
         public static string SuppressCa1303(string value) => value;
+
+        public static Func<T> D<T>(Func<T> v) => v;
     }
 }

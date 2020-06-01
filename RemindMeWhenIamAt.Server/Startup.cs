@@ -17,7 +17,6 @@ namespace RemindMeWhenIamAt.Server
         // ReSharper disable MemberCanBePrivate.Global
         // ReSharper disable UnusedAutoPropertyAccessor.Global
         public IConfiguration Configuration { get; }
-
         // ReSharper enable UnusedAutoPropertyAccessor.Global
         // ReSharper enable MemberCanBePrivate.Global
 
@@ -35,7 +34,6 @@ namespace RemindMeWhenIamAt.Server
 #pragma warning disable CA1822 // Mark members as static
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 #pragma warning restore CA1822 // Mark members as static
-
         // ReSharper enable UnusedMember.Global
         {
             if (env.IsDevelopment())
