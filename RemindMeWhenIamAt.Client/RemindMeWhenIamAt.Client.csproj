@@ -21,4 +21,16 @@
     <ProjectReference Include="..\RemindMeWhenIamAt.Shared\RemindMeWhenIamAt.Shared.csproj" />
   </ItemGroup>
 
+
+  <!-- index.html gets added to the wwwroot\service-worker-assets.js with pre-cqaclulated hash.
+       Unfortunately, it seems that browser sometimes incorrectly calculates this hash after Blazor has already added some extra empty comments 
+       into the markup (see https://github.com/dotnet/aspnetcore/issues/10587 for example).
+       Hence, we have to exclude index.html from service-worker-assets.js 
+  -->
+  <Target Name="CustomActionsAfterPublish" AfterTargets="AfterPublish">
+    <PropertyGroup>
+      <ServiceWorkerAssets>$(SolutionDir)RemindMeWhenIamAt.Client\obj\$(Configuration)\netstandard2.1\blazor\service-worker-assets.js</ServiceWorkerAssets>
+    </PropertyGroup>
+		<Exec Command="pwsh -Command &quot;&amp;{ ((Get-Content $(ServiceWorkerAssets) -Raw) -replace '{\r\s*(&quot;&quot;hash&quot;&quot;:\s*&quot;&quot;[^&quot;&quot;]+&quot;&quot;),\r\s*(&quot;&quot;url&quot;&quot;:\s*&quot;&quot;[^&quot;&quot;]+&quot;&quot;)\r\s*}(,?)', '{ $1, $2 }$3') -replace '({\s*&quot;&quot;hash&quot;&quot;:\s*&quot;&quot;[^&quot;&quot;]+&quot;&quot;,\s*&quot;&quot;url&quot;&quot;:\s*&quot;&quot;index.html&quot;&quot;\s*},?)', '// $1'| Out-File $(ServiceWorkerAssets) -Encoding Utf8 }&quot;" />
+	</Target>
 </Project>
