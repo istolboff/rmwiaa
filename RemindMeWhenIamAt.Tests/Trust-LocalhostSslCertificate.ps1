@@ -66,6 +66,15 @@ while (-not $dotnetProcess.HasExited)
 			$yesButton = $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window/Button")) | Where-Object { $_.Text -eq $yesWord }
 			$yesButton.Click()
 			Write-Host "[$yesWord] button was clicked."
+			try
+			{
+				Write-Host "Hitting Enter on [$yesWord] button because for some reason Click not always works."
+				$yesButton.SendKeys([OpenQA.Selenium.Keys]::Enter)
+			}
+			catch 
+			{
+				Write-Host $_.Exception.Message
+			}
 		}
 	}
 	
