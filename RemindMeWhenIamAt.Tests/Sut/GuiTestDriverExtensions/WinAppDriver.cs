@@ -41,7 +41,7 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             catch (TimeoutException exception)
             {
                 throw new InvalidOperationException(
-                    $"Failed waiting for Chrome Window with title [{windowTitle}{Environment.NewLine}]" +
+                    $"Failed waiting for Chrome Window with title [{windowTitle}]{Environment.NewLine}" +
                     $"Test-driven Chrome browser's current page source is: {webDriver.PageSource}",
                     exception);
             }

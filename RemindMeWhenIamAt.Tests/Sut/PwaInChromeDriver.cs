@@ -18,6 +18,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
         {
             _pwaName = pwaName;
             (_chromeDriver, _rootChromeProcessCreatedByChromeDriver) = StartChromeDriver();
+            Trace.WriteLine($"Getting PWA '{pwaName}' from {pwaUri}...");
             _chromeDriver.Navigate().GoToUrl(pwaUri);
         }
 

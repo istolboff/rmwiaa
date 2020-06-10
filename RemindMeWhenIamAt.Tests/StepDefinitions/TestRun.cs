@@ -21,7 +21,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
             }
             catch (Exception exception) when (!exception.ShouldNotBeCaught())
             {
-                Trace.WriteLine($"Encountered exception during Testrun setup: {Environment.NewLine}{exception}");
+                Trace.WriteLine($"Encountered exception during Testrun setup: {Environment.NewLine}{exception}{Environment.NewLine}Service log: {Service.ReadOutput()}");
                 CloseChromeDriverAndServer();
                 throw;
             }
