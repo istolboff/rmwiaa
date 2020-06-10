@@ -51,8 +51,9 @@ while (-not $dotnetProcess.HasExited)
 {
     if ($stopwatch.Elapsed.Ticks -ge $timeout.Ticks)
     {
+		Write-Host $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window")).WrappedDriver.PageSource
         Stop-Process -Id $dotnetProcess.Id
-		Write-Error "Timouted waiting for locating and pressing button [$yesWord] in the [$certificateWindowTitle] system popup."
+		Write-Error "Timouted waiting for locating and pressing button [$yesWord] in the [$certificateWindowTitle] system popup. See popup's Window PageSource above."
         return
     }
     
