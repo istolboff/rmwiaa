@@ -42,9 +42,9 @@ dotnet dev-certs https --check --verbose | Out-Host
 
 $desktopSession = [AppiumDriver]::new()
 
+Write-Host "Starting command `'dotnet dev-certs https --trust --verbose`'..."
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
-$dotnetProcess = Start-Process -FilePath 'dotnet' -ArgumentList 'dev-certs', 'https', '--trust', '--verbose' -PassThru
-Write-Host "Started command `'dotnet dev-certs https --trust --verbose`'"
+$dotnetProcess = Start-Process -FilePath 'dotnet' -ArgumentList 'dev-certs', 'https', '--trust', '--verbose' -NoNewWindow -PassThru 
 
 $certificateSetupDriver = $null
 while (-not $dotnetProcess.HasExited)
@@ -64,8 +64,8 @@ while (-not $dotnetProcess.HasExited)
 		{
 			Write-Host "Appium Driver was successfullly attached to [$certificateWindowTitle] system popup."
 			$yesButton = $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window/Button")) | Where-Object { $_.Text -eq $yesWord }
-			Write-Host "Hitting Enter on [$yesWord] button because for some reason Click not always works."
-			$yesButton.SendKeys([OpenQA.Selenium.Keys]::Enter)
+			Write-Host "Clicking on [$yesWord] button."
+			$yesButton.Click()
 		}
 	}
 	

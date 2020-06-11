@@ -21,6 +21,9 @@ steps:
 - script: dotnet publish --output .\bin\$(buildConfiguration)\publish --configuration $(buildConfiguration) --verbosity normal
   displayName: 'publish locally in order to be able to run tests'
 
+- pwsh: 'Get-Content .\bin\$(buildConfiguration)\publish\wwwroot\service-worker-assets.js'
+  displayName: 'Showing content of the published wwwroot\service-worker-assets.js (there should be no index.html in it)'
+
 - task: WinAppDriver.winappdriver-pipelines-task.winappdriver-pipelines-task.Windows Application Driver@0
   displayName: 'Start - WinAppDriver'
 
