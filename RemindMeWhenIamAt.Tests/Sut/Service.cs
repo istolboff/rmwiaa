@@ -27,12 +27,17 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public static Process Start()
         {
-            var result = new Process();
-            result.StartInfo.FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe");
-            result.StartInfo.WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish"));
-            result.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            result.StartInfo.RedirectStandardOutput = true;
-            result.OutputDataReceived += (_, e) => serverOutput.Enqueue(e.Data + Environment.NewLine);
+            var result = new Process
+                        {
+                            StartInfo = new ProcessStartInfo
+                            {
+                                FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
+                                WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish")),
+                                WindowStyle = ProcessWindowStyle.Normal,
+                                RedirectStandardOutput = true
+                            }
+                        };
+            result.OutputDataReceived += (_, e) => ServerOutput.Enqueue(e.Data + Environment.NewLine);
             result.Start();
             result.BeginOutputReadLine();
             return result;
@@ -41,7 +46,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
         public static string ReadOutput()
         {
             var result = new StringBuilder();
-            while (serverOutput.TryDequeue(out var nextPortion))
+            while (ServerOutput.TryDequeue(out var nextPortion))
             {
                 result.Append(nextPortion);
             }
@@ -51,6 +56,6 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         private static string FolderPath => Directory.GetParent(typeof(Startup).Assembly.Location).FullName;
 
-        private static ConcurrentQueue<string> serverOutput = new ConcurrentQueue<string>();
+        private static readonly ConcurrentQueue<string> ServerOutput = new ConcurrentQueue<string>();
     }
 }

@@ -29,7 +29,11 @@ namespace RemindMeWhenIamAt.Tests.Sut
         {
             using var chromeSession = WinAppDriver.AttachToBrowser(WebDriver, " - Google Chrome");
             chromeSession.WaitForElement(
-                By.XPath("/Pane/Pane/Pane/Pane/Pane/Pane/Button"),
+                new[]
+                {
+                    By.XPath("/Pane/Pane/Pane/Pane/Pane/Group/Pane/Button"),
+                    By.XPath("/Pane/Pane/Pane/Pane/Pane/Pane/Button")
+                },
                 element => element.Text.Contains(_pwaName, StringComparison.OrdinalIgnoreCase))
                 .Click();
             EmulateClickingTheButtonBySendingEnterKey(

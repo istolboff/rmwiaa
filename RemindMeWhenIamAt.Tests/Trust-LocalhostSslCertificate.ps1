@@ -46,22 +46,34 @@ Write-Host "Starting command `'dotnet dev-certs https --trust --verbose`'..."
 $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $dotnetProcess = Start-Process -FilePath 'dotnet' -ArgumentList 'dev-certs', 'https', '--trust', '--verbose' -NoNewWindow -PassThru 
 
-$certificateSetupDriver = $null
+[bool] $certificateWindowFound = $false
 while (-not $dotnetProcess.HasExited)
 {
     if ($stopwatch.Elapsed.Ticks -ge $timeout.Ticks)
     {
-		Write-Host $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window")).WrappedDriver.PageSource
+		$certificateSetupDriver = $desktopSession.TryFindWindowDriver($certificateWindowTitle) # refresh driver
+		if ($null -ne $certificateSetupDriver)
+		{
+			'PageSource:', $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window")).WrappedDriver.PageSource,
+			'ScreenShot:', $certificateSetupDriver.GetScreenshot().AsBase64EncodedString | `
+				Write-Host
+		}
+		else 
+		{
+			Write-Host "[$certificateWindowTitle] system popup did not show up."
+		}
+
         Stop-Process -Id $dotnetProcess.Id
-		Write-Error "Timouted waiting for locating and pressing button [$yesWord] in the [$certificateWindowTitle] system popup. See popup's Window PageSource above."
+		Write-Error "Timouted waiting for locating and pressing button [$yesWord] in the [$certificateWindowTitle] system popup. See popup's Window PageSource and Screenshot above."
         return
     }
     
-	if ($null -eq $certificateSetupDriver)
+	if (-not $certificateWindowFound)
 	{
 		$certificateSetupDriver = $desktopSession.TryFindWindowDriver($certificateWindowTitle)
 		if ($null -ne $certificateSetupDriver)
 		{
+			$certificateWindowFound = $true
 			Write-Host "Appium Driver was successfullly attached to [$certificateWindowTitle] system popup."
 			$yesButton = $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window/Button")) | Where-Object { $_.Text -eq $yesWord }
 			Write-Host "Clicking on [$yesWord] button."
@@ -72,4 +84,4 @@ while (-not $dotnetProcess.HasExited)
     Wait-Process -Id $dotnetProcess.Id -Timeout 1 -ErrorAction SilentlyContinue
 }
 
-dotnet dev-certs https --check --verbose | Out-Host 
+dotnet dev-certs https --check --verbose | Out-Host
