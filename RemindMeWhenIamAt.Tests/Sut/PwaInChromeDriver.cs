@@ -17,6 +17,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
         public PwaInChromeDriver(string pwaName, Uri pwaUri)
         {
             _pwaName = pwaName;
+            Trace.WriteLine("Chrome version: " + FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe").FileVersion);
             (_chromeDriver, _rootChromeProcessCreatedByChromeDriver) = StartChromeDriver();
             Trace.WriteLine($"Getting PWA '{pwaName}' from {pwaUri}...");
             _chromeDriver.Navigate().GoToUrl(pwaUri);

@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
+using System.Threading;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Appium.Android;
+using OpenQA.Selenium.Appium.Android.Enums;
 using OpenQA.Selenium.Appium.Windows;
 using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
 
@@ -34,11 +37,32 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             _windowsDriver.WaitForElement(
                 findElement,
                 D(() =>
-                    "Couldn't find " + filterExplanation + " in " +
-                    _windowsDriver.FindElement(By.XPath("/Pane")).WrappedDriver.PageSource + Environment.NewLine +
-                    "Page HTML: " + $"{Environment.NewLine}\t{_webDriver.PageSource}" + Environment.NewLine +
-                    "Additional logs: " + $"{Environment.NewLine}\t" + string.Join($"{Environment.NewLine}\t", _webDriver.GetBrowserLogs())),
+                    {
+                        var mainBrowserPane = _windowsDriver.FindElement(By.XPath("/Pane"));
+                        return "Couldn't find " + filterExplanation + " in " +
+                            mainBrowserPane.WrappedDriver.PageSource + Environment.NewLine +
+                            "Page HTML: " + $"{Environment.NewLine}\t{_webDriver.PageSource}" + Environment.NewLine +
+                            "Browser logs: " + $"{Environment.NewLine}\t" + string.Join($"{Environment.NewLine}\t", _webDriver.GetBrowserLogs()) + Environment.NewLine +
+                            GetConsoleScreenshot(mainBrowserPane);
+                    }),
                 timeout);
+
+        private string GetConsoleScreenshot(WindowsElement mainBrowserPane)
+        {
+            mainBrowserPane.SendKeys(Keys.Control + Keys.Shift + "i");
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+            var consoleTab = _windowsDriver.FindElements(By.XPath("/Pane/Document/Group/Tab/TabItem")).SingleOrDefault(item => item.Text == "Console");
+            if (consoleTab == null)
+            {
+                return "Could not find 'Console' tab in Developer's Instruments. Following is the the whole Window Source after pressing Ctrl + Shift + i: " +
+                        Environment.NewLine +
+                        mainBrowserPane.WrappedDriver.PageSource;
+            }
+
+            consoleTab.Click();
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+            return "Screenshot: " + Environment.NewLine + _windowsDriver.GetScreenshot().AsBase64EncodedString;
+        }
 
         private readonly WindowsDriver<WindowsElement> _windowsDriver;
         private readonly IWebDriver _webDriver;
