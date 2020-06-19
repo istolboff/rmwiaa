@@ -16,7 +16,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         }
 
         [Given(@"user (.*) sets up the following reminders?")]
-        public void GivenUserSetsUpTheFollowingReminder(string userName, Table remindersToSetup)
+        public void UserSetsUpReminder(string userName, Table remindersToSetup)
         {
             var indexPage = _applicationUnderTest.NavigateTo<DefaultPage>();
             foreach (var reminder in remindersToSetup.CreateSet<Reminder>())
@@ -25,6 +25,13 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
                 indexPage = newReminderPage.AddReminder(reminder);
             }
 
+            MakeCompilerHappy.Use(userName);
+        }
+
+        [When(@"user (.*) gets near the (.*) location")]
+        public void UserGetsNearLocation(string userName, GeoLocation location)
+        {
+            _applicationUnderTest.CurrentGeoLocation = location;
             MakeCompilerHappy.Use(userName);
         }
 

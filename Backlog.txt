@@ -1,4 +1,5 @@
 * switch to headless Chrome in tests
+
 * Add the following
 Scenario: Several notifications in different places
     Given user A sets up the following reminders
@@ -7,11 +8,11 @@ Scenario: Several notifications in different places
 	| 53.473645769263258,43.74428934562451 | AAAAAAAA AAAA AAAA AAAA AAAAAAAAAAAA |
 	| 46.277299522583454,29.25735945373542 | BBBBBBBB BBBB BBBB BBBB BBBBBBBBBBBB |
 	When user A gets near the 53.473645769263258,43.74428934562451 location
-	Then user A should not be reminded with the message 'AAAAAAAA AAAA AAAA AAAA AAAAAAAAAAAA'
+	Then user A should be reminded with the message 'AAAAAAAA AAAA AAAA AAAA AAAAAAAAAAAA'
 	When user A gets near the 55.770408630371094,37.61994552612305 location
-	Then user A should not be reminded with the message '4F95A5D3 AEA5 4D81 A88C F4A3A9DD1922'
+	Then user A should be reminded with the message '4F95A5D3 AEA5 4D81 A88C F4A3A9DD1922'
 	When user A gets near the 46.277299522583454,29.25735945373542 location
-	Then user A should not be reminded with the message 'BBBBBBBB BBBB BBBB BBBB BBBBBBBBBBBB'
+	Then user A should be reminded with the message 'BBBBBBBB BBBB BBBB BBBB BBBBBBBBBBBB'
 
 * Add the following
 Scenario: different users should not see each other's notifications

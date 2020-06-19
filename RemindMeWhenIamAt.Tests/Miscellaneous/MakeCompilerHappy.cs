@@ -17,7 +17,7 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
         public static void GetRidOfCa1812()
 // ReSharper enable UnusedMember.Global
         {
-            Use(new object[] { new ApplicationUnderTest(null!, null!), new TestRun(null!), new BasicActions(null!) });
+            Use(new object[] { new ApplicationUnderTest(null!, null!, null!), new TestRun(null!), new BasicActions(null!) });
         }
 
         public static T EnsureNotNull<T>(T? v)

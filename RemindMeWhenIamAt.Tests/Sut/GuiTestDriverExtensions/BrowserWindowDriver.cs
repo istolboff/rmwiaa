@@ -17,6 +17,8 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             _webDriver = webDriver;
         }
 
+        public WindowsElement TopmostPane => _windowsDriver.FindElement(By.XPath("/Pane"));
+
         public WindowsElement WaitForElement(
             By by,
             Func<WindowsElement, bool>? extraElementFilter = null,
@@ -38,8 +40,6 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
         {
             _windowsDriver.Dispose();
         }
-
-        private WindowsElement TopmostPane => _windowsDriver.FindElement(By.XPath("/Pane"));
 
         private WindowsElement WaitForElement(
             Func<WindowsDriver<WindowsElement>, WindowsElement?> findElement,
