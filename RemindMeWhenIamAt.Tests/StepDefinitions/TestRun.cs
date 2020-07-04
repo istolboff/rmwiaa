@@ -3,7 +3,6 @@ using System.Diagnostics;
 using BoDi;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
 using RemindMeWhenIamAt.Tests.Sut;
-using RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions;
 using TechTalk.SpecFlow;
 
 namespace RemindMeWhenIamAt.Tests.StepDefinitions
@@ -17,7 +16,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
             try
             {
                 _serviceProcess = Service.Start();
-                _pwaInChromeDriver = new PwaInChromeDriver("Remind Me When I am At...", Service.RootUrl);
+                _pwaInChromeDriver = new PwaInChrome("Remind Me When I am At...", Service.RootUrl);
                 _pwaInChromeDriver.AddPwaToHomeScreen();
             }
             catch (Exception exception) when (!exception.ShouldNotBeCaught())
@@ -39,7 +38,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
                 }
                 catch (Exception exception) when (!exception.ShouldNotBeCaught())
                 {
-                    Trace.WriteLine($"Encountered exception during Testrun Teardown: {Environment.NewLine}{exception}");
+                    Trace.WriteLine($"Encountered exception during Testrun Teardown: {exception}");
                 }
             }
 
@@ -55,10 +54,9 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         public void InitializeWebDriver()
         {
             Debug.Assert(_pwaInChromeDriver != null, "Test logic error: _pwaInChromeDriver should have been initialized in SetupTestRun.");
-            var browserWindowDriver = WinAppDriver.AttachToBrowser(_pwaInChromeDriver.WebDriver);
             _diContainer.RegisterInstanceAs(Service.RootUrl);
+            _diContainer.RegisterInstanceAs(_pwaInChromeDriver);
             _diContainer.RegisterInstanceAs(_pwaInChromeDriver.WebDriver);
-            _diContainer.RegisterInstanceAs<IBrowserDeveloperTools>(new ChromeDeveloperTools(browserWindowDriver));
         }
 
         private static void CloseChromeDriverAndServer()
@@ -76,7 +74,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         }
 
         private static Process _serviceProcess = new Process();
-        private static PwaInChromeDriver? _pwaInChromeDriver;
+        private static PwaInChrome? _pwaInChromeDriver;
         private readonly IObjectContainer _diContainer;
     }
 }

@@ -8,18 +8,20 @@ using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Windows;
 using OpenQA.Selenium.Chrome;
+using RemindMeWhenIamAt.Tests.Miscellaneous;
 using RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
-    internal sealed class PwaInChromeDriver : IDisposable
+    internal sealed class PwaInChrome : IDisposable
     {
-        public PwaInChromeDriver(string pwaName, Uri pwaUri)
+        public PwaInChrome(string pwaName, Uri pwaUri)
         {
             _pwaName = pwaName;
+            _pwaUri = pwaUri;
             Trace.WriteLine("Chrome version: " + FileVersionInfo.GetVersionInfo(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe").FileVersion);
             (_chromeDriver, _rootChromeProcessCreatedByChromeDriver) = StartChromeDriver();
-            Trace.WriteLine($"Getting PWA '{pwaName}' from {pwaUri}...");
+            Trace.WriteLine($"Navigating to PWA '{pwaName}' at {pwaUri}...");
             _chromeDriver.Navigate().GoToUrl(pwaUri);
         }
 
@@ -27,22 +29,33 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public void AddPwaToHomeScreen()
         {
-            using var chromeSession = WinAppDriver.AttachToBrowser(WebDriver, " - Google Chrome");
-            chromeSession.WaitForElement(
+            using var chromeSession = AttachToPwaBrowserWindow();
+            ClickInstallButtonAftewrShortDelay(
+                chromeSession.WaitForElement(
                 new[]
                 {
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Group/Pane/Button"),
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Pane/Button")
                 },
-                element => element.Text.Contains(_pwaName, StringComparison.OrdinalIgnoreCase))
-                .Click();
+                element => element.Text.Contains(_pwaName, StringComparison.OrdinalIgnoreCase)));
+
             EmulateClickingTheButtonBySendingEnterKey(
                 chromeSession.WaitForElement(
                     By.XPath("/Pane/Pane/Pane/Pane/Pane/Button"),
                     e => e.Text == "Install"));
+
             Thread.Sleep(TimeSpan.FromMilliseconds(500));
             Trace.WriteLine($"PWA '{_pwaName}' has been added to Home Screen.");
-            _chromeDriver.Navigate().Refresh(); // in order to let chrome realize that it's now in a Home Screen mode
+            _chromeDriver.Navigate().Refresh(); // in order to let Chrome realize that it's now in a Home Screen mode
+            _pwaHasBeenAddedToHomeScreen = true;
+
+            // for some reason, Click() on this button not always works,
+            // perhaps because Chrome "animates" it, by moving it to the right soon after it appears.
+            void ClickInstallButtonAftewrShortDelay(WindowsElement button)
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+                button.Click();
+            }
 
             // .Click() doesn't work for this button for some reason.
             void EmulateClickingTheButtonBySendingEnterKey(WindowsElement button) => button.SendKeys(Keys.Enter);
@@ -50,7 +63,7 @@ namespace RemindMeWhenIamAt.Tests.Sut
 
         public void RemoveFromHomeScreen()
         {
-            using var chromeSession = WinAppDriver.AttachToBrowser(WebDriver);
+            using var chromeSession = AttachToPwaBrowserWindow();
 
             chromeSession.WaitForElement(By.XPath("/Pane/Pane/Pane/Pane/Pane/MenuItem"))
                 .Click();
@@ -71,7 +84,28 @@ namespace RemindMeWhenIamAt.Tests.Sut
                 .Click();
 
             Thread.Sleep(TimeSpan.FromMilliseconds(2000));
+            _pwaHasBeenAddedToHomeScreen = false;
             Trace.WriteLine($"PWA '{_pwaName}' has been removed from Home Screen.");
+        }
+
+        public ChromeDeveloperTools OpenDeveloperTools()
+        {
+            if (_pwaHasBeenAddedToHomeScreen)
+            {
+                using (var chromeSession = AttachToPwaBrowserWindow())
+                {
+                    chromeSession.TopmostPane.SendKeys(Keys.Control + Keys.Shift + "i");
+                }
+
+                var devToolsWindow = BrowserWindowDriver.AttachToWindow(WinAppDriver.FindAppWindow($"DevTools - {_pwaUri.CutSchemeOff()}"));
+                return new ChromeDeveloperTools(devToolsWindow);
+            }
+            else
+            {
+                var chromeSession = AttachToPwaBrowserWindow();
+                chromeSession.TopmostPane.SendKeys(Keys.Control + Keys.Shift + "i");
+                return new ChromeDeveloperTools(chromeSession);
+            }
         }
 
         public void Close()
@@ -91,6 +125,13 @@ namespace RemindMeWhenIamAt.Tests.Sut
         {
             _chromeDriver?.Dispose();
         }
+
+        private BrowserWindowDriver AttachToPwaBrowserWindow() =>
+            BrowserWindowDriver.AttachToWindow(
+                WinAppDriver.FindAppWindow(
+                    WebDriver.Title + (_pwaHasBeenAddedToHomeScreen ? default : " - Google Chrome"),
+                    WebDriver),
+                WebDriver);
 
         private static (ChromeDriver chromeDriver, Process rootChromeProcessCreatedByChromeDriver) StartChromeDriver()
         {
@@ -123,7 +164,9 @@ namespace RemindMeWhenIamAt.Tests.Sut
         }
 
         private readonly string _pwaName;
+        private readonly Uri _pwaUri;
         private readonly ChromeDriver _chromeDriver;
         private readonly Process _rootChromeProcessCreatedByChromeDriver;
+        private bool _pwaHasBeenAddedToHomeScreen;
     }
 }

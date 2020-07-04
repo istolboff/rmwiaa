@@ -1,25 +1,42 @@
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
+using System.Linq.Expressions;
 using System.Threading;
+
+using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
 
 namespace RemindMeWhenIamAt.Tests.Miscellaneous
 {
     internal static class Wait
     {
-        public static void Until(Func<bool> predicate, TimeSpan timeout, [CallerMemberName] string? callerMemberName = null)
+        public static void Until(
+            Expression<Func<bool>> predicate,
+            TimeSpan? timeout = default)
         {
-            Until(predicate, value => value, timeout, null, callerMemberName);
+            Until(predicate, _ => _, timeout ?? TimeSpan.MaxValue);
+
+            if (predicate.ToString() == "() => Debugger.IsAttached")
+            {
+                NoOp();
+            }
         }
 
         public static T Until<T>(
-            Func<T> selectValue,
-            Predicate<T> checkValue,
+            Expression<Func<T>> selectValueExpression,
+            Expression<Predicate<T>> checkValueExpression,
             TimeSpan timeout,
-            Func<T, Exception>? makeInnerException,
-            [CallerMemberName] string? callerMemberName = null)
+            Func<T, Exception>? makeInnerException = null,
+            string? waitingForWhat = default)
         {
             var stopWatch = Stopwatch.StartNew();
+
+            if (!string.IsNullOrWhiteSpace(waitingForWhat))
+            {
+                Trace.WriteLine($"Started waiting for {waitingForWhat}");
+            }
+
+            var selectValue = selectValueExpression.Compile();
+            var checkValue = checkValueExpression.Compile();
 
             while (true)
             {
@@ -31,14 +48,16 @@ namespace RemindMeWhenIamAt.Tests.Miscellaneous
 
                 if (stopWatch.Elapsed >= timeout)
                 {
-#pragma warning disable CA1303
                     throw makeInnerException == null
-                        ? new TimeoutException("Waiting failed.")
-                        : new TimeoutException("Waiting failed.", makeInnerException(value));
-#pragma warning restore CA1303
+                        ? new TimeoutException(SuppressCa1303("Waiting failed."))
+                        : new TimeoutException(SuppressCa1303("Waiting failed."), makeInnerException(value));
                 }
 
-                Trace.WriteLine($"Probing in Wait.Until() called from {callerMemberName} failed, sleeping for {AWhile}.");
+                if (!string.IsNullOrWhiteSpace(waitingForWhat))
+                {
+                    Trace.WriteLine($"Will check for {waitingForWhat} again in {AWhile}");
+                }
+
                 Thread.Sleep(AWhile);
             }
         }

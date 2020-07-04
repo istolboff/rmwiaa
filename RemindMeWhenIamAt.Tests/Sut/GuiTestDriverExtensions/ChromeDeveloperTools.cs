@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Globalization;
 using OpenQA.Selenium;
 using RemindMeWhenIamAt.SharedCode;
@@ -5,17 +7,17 @@ using RemindMeWhenIamAt.Tests.Miscellaneous;
 
 namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
 {
-    internal sealed class ChromeDeveloperTools : IBrowserDeveloperTools
+    internal sealed class ChromeDeveloperTools : IDisposable
     {
         public ChromeDeveloperTools(BrowserWindowDriver browserWindowDriver)
         {
             _browserWindowDriver = browserWindowDriver;
         }
 
-        public void SetCurrentLocation(GeoLocation value)
+        public void SetCurrentGeoLocation(GeoLocation value)
         {
-            var topmostPane = _browserWindowDriver.TopmostPane;
-            topmostPane.SendKeys(Keys.Control + Keys.Shift + "i");
+            _disposedChecker.Check();
+
             _browserWindowDriver
                 .WaitForElement(
                     By.XPath("/Pane/Document/Group/MenuItem"),
@@ -23,7 +25,7 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
                 .Click();
 
             var devToolsDocument = _browserWindowDriver.WaitForElement(
-                By.XPath($"/Pane[@ClassName=\"Chrome_WidgetWin_1\"][@Name=\"{topmostPane.Text}\"]/Document[@ClassName=\"Chrome_RenderWidgetHostHWND\"]"));
+                By.XPath("/Pane/Document[@ClassName=\"Chrome_RenderWidgetHostHWND\"]"));
 
             devToolsDocument.SendKeys(6.Times(Keys.ArrowDown));
             devToolsDocument.SendKeys(Keys.ArrowRight);
@@ -40,6 +42,26 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             devToolsDocument.SendKeys(Keys.Tab);
         }
 
+        public void Dispose()
+        {
+            if (!_disposedChecker.Dispose())
+            {
+                return;
+            }
+
+            try
+            {
+                _browserWindowDriver.TopmostPane.SendKeys(Keys.Control + Keys.Shift + "i");
+            }
+            catch (WebDriverException exception)
+            {
+                Trace.WriteLine($"Failed to close Chrome Development Tools: {exception.Message}");
+            }
+
+            _browserWindowDriver.Dispose();
+        }
+
         private readonly BrowserWindowDriver _browserWindowDriver;
+        private readonly ObjectDisposedChecker _disposedChecker = new ObjectDisposedChecker("ChromeDeveloperTools");
     }
 }

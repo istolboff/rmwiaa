@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium;
 using OpenQA.Selenium.Appium.Windows;
@@ -12,38 +13,43 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
 {
     internal static class WinAppDriver
     {
-        public static BrowserWindowDriver AttachToBrowser(IWebDriver webDriver, string? titleSuffix = default)
-        {
-            var browserWindowHandle = FindBrowserWindow(webDriver.Title + titleSuffix, webDriver);
-            return new BrowserWindowDriver(
-                new WindowsDriver<WindowsElement>(
+        public static WindowsDriver<WindowsElement> GetTopLevelWindowDriver(string browserWindowHandle) =>
+            new WindowsDriver<WindowsElement>(
                     ServiceUrl,
-                    CreateOptions("appTopLevelWindow", browserWindowHandle.ToString("X", CultureInfo.InvariantCulture))),
-                webDriver);
-        }
+                    CreateOptions("appTopLevelWindow", int.Parse(browserWindowHandle, CultureInfo.InvariantCulture).ToString("X", CultureInfo.InvariantCulture)));
+
+        public static string FindAppWindow(string windowTitle, IWebDriver? webDriver = default) =>
+            Wait.Until(
+                () => FindAppWindowCore(windowTitle, webDriver),
+                windowHandle => windowHandle != "0",
+                TimeSpan.FromSeconds(5));
 
         private static bool IsRunning => Process.GetProcessesByName("WinAppDriver").Any();
 
-        private static int FindBrowserWindow(string windowTitle, IWebDriver webDriver)
+        private static string FindAppWindowCore(string windowTitle, IWebDriver? webDriver = default)
         {
             try
             {
                 using var rootDriver = CreateRootDriver();
-// ReSharper disable AccessToDisposedClosure
-// Couldn't find a way to fix this with [InstantHandle]
+                // ReSharper disable AccessToDisposedClosure
+                // Couldn't find a way to fix this with [InstantHandle]
                 var webElement = rootDriver.WaitForElement(
                     d => d.TryFindElementByName(windowTitle),
-                    D(() => $"Couldn't find browser window with title '{windowTitle}' in " +
-                    rootDriver.FindElement(By.XPath("/Pane")).WrappedDriver.PageSource));
-// ReSharper enable AccessToDisposedClosure
-                return int.Parse(webElement.GetAttribute("NativeWindowHandle"), CultureInfo.InvariantCulture);
+                    D(() => $"Couldn't find browser window with title '{windowTitle}'"));
+                // ReSharper enable AccessToDisposedClosure
+                return webElement.GetAttribute("NativeWindowHandle");
             }
             catch (TimeoutException exception)
             {
-                throw new InvalidOperationException(
-                    $"Failed waiting for Chrome Window with title [{windowTitle}]{Environment.NewLine}" +
-                    $"Test-driven Chrome browser's current page source is: {webDriver.PageSource}",
-                    exception);
+                var messageBuilder = new StringBuilder();
+                messageBuilder.Append($"Failed waiting for Chrome Window with title [{windowTitle}]");
+                if (webDriver != null)
+                {
+                    messageBuilder.AppendLine();
+                    messageBuilder.Append($"Test-driven Chrome browser's current page source is: {webDriver.PageSource}");
+                }
+
+                throw new InvalidOperationException(messageBuilder.ToString(), exception);
             }
         }
 

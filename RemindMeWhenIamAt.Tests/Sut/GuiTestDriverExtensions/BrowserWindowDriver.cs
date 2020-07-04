@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
-using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Windows;
 using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
@@ -11,34 +12,44 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
 {
     internal sealed class BrowserWindowDriver : IDisposable
     {
-        public BrowserWindowDriver(WindowsDriver<WindowsElement> windowsDriver, IWebDriver webDriver)
+        private BrowserWindowDriver(WindowsDriver<WindowsElement> windowsDriver, IWebDriver? webDriver)
         {
             _windowsDriver = windowsDriver;
             _webDriver = webDriver;
+            TopmostPane = WaitForElement(By.XPath("/Pane"));
         }
 
-        public WindowsElement TopmostPane => _windowsDriver.FindElement(By.XPath("/Pane"));
+        public WindowsElement TopmostPane { get; }
 
         public WindowsElement WaitForElement(
             By by,
-            Func<WindowsElement, bool>? extraElementFilter = null,
+            Expression<Func<WindowsElement, bool>>? extraElementFilter = null,
             TimeSpan? timeout = null)
         =>
-            WaitForElement(d => d.FindElements(by).SingleOrDefault(extraElementFilter ?? (_ => true)), by.ToString(), timeout);
+            WaitForElement(d => d.FindElements(by).SingleOrDefault(extraElementFilter?.Compile() ?? (_ => true)), $"{by} && {extraElementFilter}", timeout);
 
         public WindowsElement WaitForElement(
             IReadOnlyCollection<By> byAny,
-            Func<WindowsElement, bool>? extraElementFilter = null,
+            Expression<Func<WindowsElement, bool>>? extraElementFilter = null,
             TimeSpan? timeout = null)
         =>
             WaitForElement(
-                d => byAny.Select(by => d.FindElements(by).SingleOrDefault(extraElementFilter ?? (_ => true))).FirstOrDefault(e => e != null),
-                "Any of " + string.Join("; ", byAny),
+                d => byAny.Select(by => d.FindElements(by).SingleOrDefault(extraElementFilter?.Compile() ?? (_ => true))).FirstOrDefault(e => e != null),
+                "Any of " + string.Join("; ", byAny) + $" && {extraElementFilter}",
                 timeout);
 
         public void Dispose()
         {
             _windowsDriver.Dispose();
+        }
+
+        public static BrowserWindowDriver AttachToWindow(string browserWindowHandle, IWebDriver? webDriver = default)
+        {
+            var windowDriver = WinAppDriver.GetTopLevelWindowDriver(browserWindowHandle);
+            var windowTitle = windowDriver.FindElement(By.XPath("/Pane")).Text;
+            var result = new BrowserWindowDriver(windowDriver, webDriver);
+            Trace.WriteLine($"Attached to appTopLevelWindow [{windowTitle}]");
+            return result;
         }
 
         private WindowsElement WaitForElement(
@@ -49,37 +60,34 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             _windowsDriver.WaitForElement(
                 findElement,
                 D(() =>
-                    "Couldn't find " + filterExplanation + " in " +
-                            TopmostPane.WrappedDriver.PageSource + Environment.NewLine +
-                            "Page HTML: " + $"{Environment.NewLine}\t{_webDriver.PageSource}" + Environment.NewLine +
-                            "Browser logs: " + $"{Environment.NewLine}\t" + string.Join($"{Environment.NewLine}\t", _webDriver.GetBrowserLogs()) + Environment.NewLine +
-                            GetConsoleScreenshot()),
-                timeout);
+                {
+                    var result = new StringBuilder();
+                    result.Append($"Couldn't find {filterExplanation} in {TryGetTopmostPanePageSource()}");
+                    if (_webDriver != null)
+                    {
+                        result.AppendLine();
+                        result.AppendLine($"Page HTML: {Environment.NewLine}\t{_webDriver.PageSource}");
+                        result.Append("Browser logs: " + $"{Environment.NewLine}\t" + string.Join($"{Environment.NewLine}\t", _webDriver.GetBrowserLogs()));
+                    }
 
-        private string GetConsoleScreenshot()
+                    return result.ToString();
+                }),
+                timeout,
+                filterExplanation);
+
+        private string TryGetTopmostPanePageSource()
         {
-            TopmostPane.SendKeys(Keys.Control + Keys.Shift + "i");
-            Thread.Sleep(TimeSpan.FromSeconds(1));
-            var consoleTab = _windowsDriver.FindElements(By.XPath("/Pane/Document/Group/Tab/TabItem")).SingleOrDefault(item => item.Text == "Console");
-            var stringBuilder = new StringBuilder();
-            if (consoleTab == null)
+            try
             {
-                stringBuilder.AppendLine("Could not find 'Console' tab in Developer's Instruments. Following is the the whole Window Source after pressing Ctrl + Shift + i: ");
-                stringBuilder.AppendLine(TopmostPane.WrappedDriver.PageSource);
+                return TopmostPane.WrappedDriver.PageSource;
             }
-            else
+            catch (WebDriverException)
             {
-                consoleTab.Click();
-                Thread.Sleep(TimeSpan.FromSeconds(1));
+                return "Could not get WrappedDriver's PageSource";
             }
-
-            stringBuilder.AppendLine("Screenshot: ");
-            stringBuilder.AppendLine(_windowsDriver.GetScreenshot().AsBase64EncodedString);
-
-            return stringBuilder.ToString();
         }
 
         private readonly WindowsDriver<WindowsElement> _windowsDriver;
-        private readonly IWebDriver _webDriver;
+        private readonly IWebDriver? _webDriver;
     }
 }

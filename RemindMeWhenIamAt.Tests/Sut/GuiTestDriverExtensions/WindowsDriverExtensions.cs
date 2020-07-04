@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Windows;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
@@ -12,14 +13,15 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             this WindowsDriver<WindowsElement> @this,
             Func<WindowsDriver<WindowsElement>, WindowsElement?> findElement,
             ExceptionMessageFactory exceptionMessageFactory,
-            TimeSpan? timeout = null)
-        =>
+            TimeSpan? timeout = null,
+            string? waitingForWhat = default) =>
             EnsureNotNull(
                 Wait.Until(
-                    () => findElement(@this),
+                    () => findElement.TraceExceptions()(@this),
                     r => r != null,
                     timeout ?? TimeSpan.FromSeconds(10),
-                    _ => new InvalidOperationException(exceptionMessageFactory.CreateMessage())));
+                    _ => new InvalidOperationException(exceptionMessageFactory.CreateMessage()),
+                    waitingForWhat));
 
         public static WindowsElement? TryFindElementByName(this WindowsDriver<WindowsElement> @this, string name)
         {

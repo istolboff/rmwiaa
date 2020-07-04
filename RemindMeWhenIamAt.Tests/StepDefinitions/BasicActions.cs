@@ -10,9 +10,10 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
     [Binding]
     internal sealed class BasicActions
     {
-        public BasicActions(ApplicationUnderTest applicationUnderTest)
+        public BasicActions(ApplicationUnderTest applicationUnderTest, PwaInChrome pwaInChromeDriver)
         {
             _applicationUnderTest = applicationUnderTest;
+            _pwaInChromeDriver = pwaInChromeDriver;
         }
 
         [Given(@"user (.*) sets up the following reminders?")]
@@ -31,10 +32,12 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         [When(@"user (.*) gets near the (.*) location")]
         public void UserGetsNearLocation(string userName, GeoLocation location)
         {
-            _applicationUnderTest.CurrentGeoLocation = location;
+            using var developerTools = _pwaInChromeDriver.OpenDeveloperTools();
+            developerTools.SetCurrentGeoLocation(location);
             MakeCompilerHappy.Use(userName);
         }
 
         private readonly ApplicationUnderTest _applicationUnderTest;
-   }
+        private readonly PwaInChrome _pwaInChromeDriver;
+    }
 }
