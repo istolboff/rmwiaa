@@ -55,12 +55,15 @@ while (-not $dotnetProcess.HasExited)
 		if ($null -ne $certificateSetupDriver)
 		{
 			'PageSource:', $certificateSetupDriver.FindElements([OpenQA.Selenium.By]::XPath("/Window")).WrappedDriver.PageSource,
-			'ScreenShot:', $certificateSetupDriver.GetScreenshot().AsBase64EncodedString | `
+			'[Security Warning] window ScreenShot:', $certificateSetupDriver.GetScreenshot().AsBase64EncodedString,
+			'Whole Desktop Screenshot:', $desktopSession._desktopSession.GetScreenshot().AsBase64EncodedString | `
 				Write-Host
 		}
 		else 
 		{
-			Write-Host "[$certificateWindowTitle] system popup did not show up."
+			"[$certificateWindowTitle] system popup did not show up.",
+			'Whole Desktop Screenshot:', $desktopSession._desktopSession.GetScreenshot().AsBase64EncodedString | `
+				Write-Host
 		}
 
         Stop-Process -Id $dotnetProcess.Id

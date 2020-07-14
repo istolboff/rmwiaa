@@ -27,7 +27,7 @@ steps:
 - task: WinAppDriver.winappdriver-pipelines-task.winappdriver-pipelines-task.Windows Application Driver@0
   displayName: 'Start - WinAppDriver'
 
-- pwsh: '''WebDriver'', ''Appium.Net'' | ForEach-Object { Add-Type -Path ".\bin\$(buildConfiguration)\publish\$_.dll" }; .\RemindMeWhenIamAt.Tests\Trust-LocalhostSslCertificate.ps1'
+- pwsh: '''WebDriver'', ''Appium.Net'' | ForEach-Object { Add-Type -Path ".\bin\$(buildConfiguration)\Selenium3Dependencies\netcoreapp3.1\$_.dll" }; .\RemindMeWhenIamAt.Tests\Trust-LocalhostSslCertificate.ps1'
   displayName: 'Trust localhost SSL certificate'
 
 - script: dotnet test RemindMeWhenIamAt.Tests\RemindMeWhenIamAt.Tests.csproj --configuration $(buildConfiguration) --logger trx

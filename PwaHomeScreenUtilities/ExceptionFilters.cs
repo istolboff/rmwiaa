@@ -1,6 +1,6 @@
 using System;
 
-namespace RemindMeWhenIamAt.Tests.Miscellaneous
+namespace PwaHomeScreenUtilities
 {
     internal static class ExceptionFilters
     {

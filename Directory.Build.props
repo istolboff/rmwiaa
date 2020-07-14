@@ -6,6 +6,5 @@
     <WarningLevel>4</WarningLevel>
     <OutputPath>..\bin\$(Configuration)</OutputPath>
     <Nullable>enable</Nullable>
-    <DisableImplicitComponentsAnalyzers>true</DisableImplicitComponentsAnalyzers> <!--see Known Issues in https://devblogs.microsoft.com/aspnet/blazor-webassembly-3-2-0-preview-1-release-now-available/-->
   </PropertyGroup>
 </Project>

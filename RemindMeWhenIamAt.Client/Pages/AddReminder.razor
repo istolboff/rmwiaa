@@ -1,7 +1,7 @@
 @page "/AddReminder"
 @inject NavigationManager NavigationManager
 
-<span>X:<input id="_x" placeholder="X" @bind="_x" />, Y:<input id="_y" placeholder="Y" @bind="_y" /></span>
+<span>Latitude:<input id="_latitude" placeholder="Latitude" @bind="_latitude" />, Longitude:<input id="_longitude" placeholder="Longitude" @bind="_longitude" /></span>
 
 <span>Message:<input id="_message" placeholder="Reminder message" @bind="_message"></span>
 
@@ -18,7 +18,7 @@
         NavigationManager.NavigateTo("/");
     }
 
-    private double? _x;
-    private double? _y;
+    private double? _latitude;
+    private double? _longitude;
     private string? _message;
 }

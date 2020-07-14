@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputPath>..\bin\$(Configuration)\Selenium3Dependencies</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20303.1" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="Appium.WebDriver" Version="4.1.1" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\RemindMeWhenIamAt.Tests\Miscellaneous\Wait.cs" Link="Wait.cs" />
+    <Compile Include="..\RemindMeWhenIamAt.Tests\Miscellaneous\MakeCompilerHappy.cs" Link="MakeCompilerHappy.cs" />
+    <Compile Include="..\RemindMeWhenIamAt.Tests\Miscellaneous\ExceptionExtensions.cs" Link="ExceptionExtensions.cs" />
+  </ItemGroup>
+</Project>

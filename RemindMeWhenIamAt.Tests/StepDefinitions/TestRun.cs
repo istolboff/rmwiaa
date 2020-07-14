@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using BoDi;
+using OpenQA.Selenium;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
 using RemindMeWhenIamAt.Tests.Sut;
 using TechTalk.SpecFlow;
@@ -8,7 +9,9 @@ using TechTalk.SpecFlow;
 namespace RemindMeWhenIamAt.Tests.StepDefinitions
 {
     [Binding]
+    #pragma warning disable CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     internal sealed class TestRun
+    #pragma warning restore CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     {
         [BeforeTestRun]
         public static void SetupTestRun()
@@ -56,7 +59,7 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
             Debug.Assert(_pwaInChromeDriver != null, "Test logic error: _pwaInChromeDriver should have been initialized in SetupTestRun.");
             _diContainer.RegisterInstanceAs(Service.RootUrl);
             _diContainer.RegisterInstanceAs(_pwaInChromeDriver);
-            _diContainer.RegisterInstanceAs(_pwaInChromeDriver.WebDriver);
+            _diContainer.RegisterInstanceAs<IWebDriver>(_pwaInChromeDriver.WebDriver);
         }
 
         private static void CloseChromeDriverAndServer()

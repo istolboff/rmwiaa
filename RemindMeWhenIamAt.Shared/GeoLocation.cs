@@ -4,23 +4,23 @@ namespace RemindMeWhenIamAt.SharedCode
 {
     public readonly struct GeoLocation : IEquatable<GeoLocation>
     {
-        public GeoLocation(decimal x, decimal y)
+        public GeoLocation(double latitude, double longitude)
         {
-            X = x;
-            Y = y;
+            Latitude = latitude;
+            Longitude = longitude;
         }
 
 #pragma warning disable CA1051 // It's a readonly struct
-        public readonly decimal X;
+        public readonly double Latitude;
 
-        public readonly decimal Y;
+        public readonly double Longitude;
 #pragma warning restore CA1051
 
         public override bool Equals(object obj) => obj is GeoLocation right && Equals(right);
 
-        public bool Equals(GeoLocation other) => X == other.X && Y == other.Y;
+        public bool Equals(GeoLocation other) => Latitude == other.Latitude && Longitude == other.Longitude;
 
-        public override int GetHashCode() => X.GetHashCode() ^ Y.GetHashCode();
+        public override int GetHashCode() => Latitude.GetHashCode() ^ Longitude.GetHashCode();
 
         public static bool operator ==(GeoLocation left, GeoLocation right) => left.Equals(right);
 

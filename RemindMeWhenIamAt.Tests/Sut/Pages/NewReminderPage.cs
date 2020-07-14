@@ -15,8 +15,8 @@ namespace RemindMeWhenIamAt.Tests.Sut.Pages
 
         public DefaultPage AddReminder(Reminder reminder)
         {
-            _webDriver.FindElement(By.Id("_x")).SendKeys(reminder.Location.X.ToString(CultureInfo.InvariantCulture));
-            _webDriver.FindElement(By.Id("_y")).SendKeys(reminder.Location.Y.ToString(CultureInfo.InvariantCulture));
+            _webDriver.FindElement(By.Id("_latitude")).SendKeys(reminder.Location.Latitude.ToString(CultureInfo.InvariantCulture));
+            _webDriver.FindElement(By.Id("_longitude")).SendKeys(reminder.Location.Longitude.ToString(CultureInfo.InvariantCulture));
             _webDriver.FindElement(By.Id("_message")).SendKeys(reminder.Message);
             var submitCommand = _webDriver.FindElement(By.Id("_doAdd"));
             submitCommand.Click();

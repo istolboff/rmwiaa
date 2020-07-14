@@ -1,4 +1,5 @@
-﻿using RemindMeWhenIamAt.SharedCode;
+﻿using OpenQA.Selenium.DevTools.Emulation;
+using RemindMeWhenIamAt.SharedCode;
 using RemindMeWhenIamAt.Tests.Miscellaneous;
 using RemindMeWhenIamAt.Tests.Sut;
 using RemindMeWhenIamAt.Tests.Sut.Pages;
@@ -8,7 +9,9 @@ using TechTalk.SpecFlow.Assist;
 namespace RemindMeWhenIamAt.Tests.StepDefinitions
 {
     [Binding]
+    #pragma warning disable CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     internal sealed class BasicActions
+    #pragma warning disable CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     {
         public BasicActions(ApplicationUnderTest applicationUnderTest, PwaInChrome pwaInChromeDriver)
         {
@@ -32,8 +35,14 @@ namespace RemindMeWhenIamAt.Tests.StepDefinitions
         [When(@"user (.*) gets near the (.*) location")]
         public void UserGetsNearLocation(string userName, GeoLocation location)
         {
-            using var developerTools = _pwaInChromeDriver.OpenDeveloperTools();
-            developerTools.SetCurrentGeoLocation(location);
+            _pwaInChromeDriver.DevToolsSession.SendCommand(
+                new SetGeolocationOverrideCommandSettings
+                {
+                    Latitude = location.Latitude,
+                    Longitude = location.Longitude,
+                    Accuracy = 100
+                })
+                .Wait();
             MakeCompilerHappy.Use(userName);
         }
 

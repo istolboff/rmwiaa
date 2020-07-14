@@ -34,7 +34,8 @@ namespace RemindMeWhenIamAt.Tests.Sut
                                 FileName = Path.Combine(FolderPath, @"RemindMeWhenIamAt.Server.exe"),
                                 WorkingDirectory = Path.GetFullPath(Path.Combine(FolderPath, @"..\publish")),
                                 WindowStyle = ProcessWindowStyle.Normal,
-                                RedirectStandardOutput = true
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false
                             }
                         };
             result.OutputDataReceived += (_, e) => ServerOutput.Enqueue(e.Data + Environment.NewLine);

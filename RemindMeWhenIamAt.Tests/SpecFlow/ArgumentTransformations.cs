@@ -8,7 +8,7 @@ namespace RemindMeWhenIamAt.Tests.SpecFlow
     public static class ArgumentTransformations
     {
         [StepArgumentTransformation(@"([\d\.]+),\s*([\d\.]+)")]
-        public static GeoLocation ParseLocation(string x, string y) =>
-            new GeoLocation(decimal.Parse(x, CultureInfo.InvariantCulture), decimal.Parse(y, CultureInfo.InvariantCulture));
+        public static GeoLocation ParseLocation(string latitude, string longitude) =>
+            new GeoLocation(double.Parse(latitude, CultureInfo.InvariantCulture), double.Parse(longitude, CultureInfo.InvariantCulture));
     }
 }

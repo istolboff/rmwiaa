@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemindMeWhenIamAt.Client", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemindMeWhenIamAt.Server", "RemindMeWhenIamAt.Server\RemindMeWhenIamAt.Server.csproj", "{F60BEA68-7333-46EF-B4CA-5876822DBD53}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PwaHomeScreenUtilities", "PwaHomeScreenUtilities\PwaHomeScreenUtilities.csproj", "{17297BC5-951D-4399-9B38-DFFEA06CC448}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{F60BEA68-7333-46EF-B4CA-5876822DBD53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F60BEA68-7333-46EF-B4CA-5876822DBD53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F60BEA68-7333-46EF-B4CA-5876822DBD53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17297BC5-951D-4399-9B38-DFFEA06CC448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17297BC5-951D-4399-9B38-DFFEA06CC448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17297BC5-951D-4399-9B38-DFFEA06CC448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17297BC5-951D-4399-9B38-DFFEA06CC448}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

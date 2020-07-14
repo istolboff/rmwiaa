@@ -4,7 +4,9 @@ using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
 
 namespace RemindMeWhenIamAt.Tests.Sut
 {
+    #pragma warning disable CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     internal sealed class ApplicationUnderTest
+    #pragma warning restore CA1812 // Yourclass is an internal class that is apparently never instantiated on Derived class
     {
         public ApplicationUnderTest(Uri rootUrl, IWebDriver webDriver)
         {

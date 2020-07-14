@@ -1,13 +1,14 @@
 using System;
 using System.Diagnostics;
-using static RemindMeWhenIamAt.Tests.Miscellaneous.ExceptionFilters;
+using RemindMeWhenIamAt.Tests.Miscellaneous;
+using static PwaHomeScreenUtilities.ExceptionFilters;
 
-namespace RemindMeWhenIamAt.Tests.Miscellaneous
+namespace PwaHomeScreenUtilities
 {
     internal static class FuncExtensions
     {
         public static Func<TArg, TResult> TraceExceptions<TArg, TResult>(this Func<TArg, TResult> @this) =>
-            (TArg arg) =>
+            arg =>
             {
                 try
                 {

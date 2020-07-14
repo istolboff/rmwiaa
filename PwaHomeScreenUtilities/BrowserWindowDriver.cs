@@ -3,23 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Appium.Windows;
 using static RemindMeWhenIamAt.Tests.Miscellaneous.MakeCompilerHappy;
 
-namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
+namespace PwaHomeScreenUtilities
 {
     internal sealed class BrowserWindowDriver : IDisposable
     {
-        private BrowserWindowDriver(WindowsDriver<WindowsElement> windowsDriver, IWebDriver? webDriver)
+        private BrowserWindowDriver(WindowsDriver<WindowsElement> windowsDriver)
         {
             _windowsDriver = windowsDriver;
-            _webDriver = webDriver;
-            TopmostPane = WaitForElement(By.XPath("/Pane"));
+            _topmostPane = WaitForElement(By.XPath("/Pane"));
         }
-
-        public WindowsElement TopmostPane { get; }
 
         public WindowsElement WaitForElement(
             By by,
@@ -43,11 +39,11 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
             _windowsDriver.Dispose();
         }
 
-        public static BrowserWindowDriver AttachToWindow(string browserWindowHandle, IWebDriver? webDriver = default)
+        public static BrowserWindowDriver AttachToWindow(string browserWindowHandle)
         {
             var windowDriver = WinAppDriver.GetTopLevelWindowDriver(browserWindowHandle);
             var windowTitle = windowDriver.FindElement(By.XPath("/Pane")).Text;
-            var result = new BrowserWindowDriver(windowDriver, webDriver);
+            var result = new BrowserWindowDriver(windowDriver);
             Trace.WriteLine($"Attached to appTopLevelWindow [{windowTitle}]");
             return result;
         }
@@ -59,19 +55,7 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
         =>
             _windowsDriver.WaitForElement(
                 findElement,
-                D(() =>
-                {
-                    var result = new StringBuilder();
-                    result.Append($"Couldn't find {filterExplanation} in {TryGetTopmostPanePageSource()}");
-                    if (_webDriver != null)
-                    {
-                        result.AppendLine();
-                        result.AppendLine($"Page HTML: {Environment.NewLine}\t{_webDriver.PageSource}");
-                        result.Append("Browser logs: " + $"{Environment.NewLine}\t" + string.Join($"{Environment.NewLine}\t", _webDriver.GetBrowserLogs()));
-                    }
-
-                    return result.ToString();
-                }),
+                () => $"Couldn't find {filterExplanation} in {TryGetTopmostPanePageSource()}",
                 timeout,
                 filterExplanation);
 
@@ -79,7 +63,7 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
         {
             try
             {
-                return TopmostPane.WrappedDriver.PageSource;
+                return _topmostPane.WrappedDriver.PageSource;
             }
             catch (WebDriverException)
             {
@@ -88,6 +72,6 @@ namespace RemindMeWhenIamAt.Tests.Sut.GuiTestDriverExtensions
         }
 
         private readonly WindowsDriver<WindowsElement> _windowsDriver;
-        private readonly IWebDriver? _webDriver;
+        private readonly WindowsElement _topmostPane;
     }
 }
